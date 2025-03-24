@@ -7,6 +7,9 @@
 <jsp:useBean id="boardManager" class="pack.board.BoardManager" />
 
 <%
+    String imageUrl = request.getParameter("imageUrl");
+    bean.setImageUrl(imageUrl);
+
     // 자동으로 채워지는 거 생성
     int newNum = boardManager.currentMaxNum() + 1;
     bean.setNum(newNum);
@@ -18,3 +21,4 @@
 
     response.sendRedirect("boardlist.jsp?page=1"); // 최신글은 1페이지에 있다, 추가 후 목록보기 (forwarding X)
 %>
+

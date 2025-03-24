@@ -72,6 +72,12 @@
     <td colspan="3" style="background-color: cyan">제목 : <%=dto.getTitle() %></td>
   </tr>
   <tr>
+    <td colspan="3" style="text-align:center;">
+      <img src="<%=dto.getImageUrl()%>" alt="영화 포스터"
+           style="max-width: 400px; height: auto; border-radius: 10px; margin: 10px 0;">
+    </td>
+  </tr>
+  <tr>
     <td colspan="3">
       <textarea rows="10" style="width: 99%" readonly="readonly"><%=dto.getCont() %></textarea>
   </tr>

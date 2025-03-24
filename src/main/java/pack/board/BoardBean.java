@@ -10,8 +10,8 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 public class BoardBean {
-    private int num, readcnt, gnum, onum, nested;
-    private String name, pass, mail, title, cont, bip, bdate;
+    private int num, readcnt, gnum, onum, nested, rating;
+    private String name, pass, mail, title, cont, bip, bdate, imageUrl;
 
     public void setBdate() {
         LocalDateTime now = LocalDateTime.now();

@@ -55,6 +55,10 @@
       <td><textarea name="cont" cols="50" rows="10"></textarea></td>
     </tr>
     <tr>
+      <td align="center">이미지url</td>
+      <td><input type="text" name="imageUrl" sizw="20"></td>
+    </tr>
+    <tr>
       <td colspan="2" align="center" height="30">
         <input type="button"
                value="메  인" onClick="location.href='../index.html'">&nbsp;

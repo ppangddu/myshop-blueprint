@@ -41,6 +41,26 @@
     </script>
 </head>
 <body>
+<script>
+    const stars = document.querySelectorAll('.star-input');
+    const labels = document.querySelectorAll('.star');
+
+    stars.forEach((star, index) => {
+        star.addEventListener('change', () => {
+            // 모든 별 초기화
+            labels.forEach(label => {
+                label.textContent = '☆'; // 빈 별로 초기화
+                label.style.color = 'lightgray'; // 기본 색상으로 초기화
+            });
+            // 선택된 별까지 선택 상태로 변경
+            for (let i = 0; i <= index; i++) {
+                labels[i].textContent = '★'; // 선택된 별로 변경
+                labels[i].style.color = 'gold'; // 선택된 별 색상으로 변경
+            }
+        });
+    });
+</script>
+
 <table>
     <tr>
         <td>
@@ -52,7 +72,7 @@
             <br>
             <table style="width: 100%">
                 <tr style="background-color: cyan;">
-                    <th>번호</th><th>글 제 목</th><th>작성자</th><th>등록일</th><th>조회수</th>
+                    <th>번호</th><th>영화</th><th>감독</th><th>개봉일</th><th>조회수</th>
                 </tr>
                 <%
                     request.setCharacterEncoding("utf-8");
@@ -89,8 +109,14 @@
                 <tr>
                     <td><%= boardManager.getTotalRecordCount() - ((bpage - 1) * 10 + i) %></td>
                     <td>
-                        <%=tab %><a href="boardcontent.jsp?num=<%=dto.getNum()%>&page=<%=bpage%>"><%= dto.getTitle() %></a>
+                        <%=tab %>
+                        <a href="boardcontent.jsp?num=<%=dto.getNum()%>&page=<%=bpage%>">
+                            <img src="<%= dto.getImageUrl() %>" alt="영화 포스터"
+                                 style="width:120px;height:180px;vertical-align:middle;margin-right:10px;border-radius:6px;">
+                            <%= dto.getTitle() %>
+                        </a>
                     </td>
+
                     <td><%= dto.getName() %></td>
                     <td><%= dto.getBdate() %></td>
                     <td><%= dto.getReadcnt() %></td>
@@ -116,8 +142,8 @@
                         <br><br>
                         <form action="boardlist.jsp" name="frm" method="post">
                             <select name="searchType">
-                                <option value="title" selected="selected">글제목</option>
-                                <option value="name">작성자</option>
+                                <option value="title" selected="selected">영화제목</option>
+                                <option value="name">감독</option>
                             </select>
                             <input type="text" name="searchWord">
                             <input type="button" value="검색" id="btnSearch">
