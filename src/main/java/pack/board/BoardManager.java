@@ -79,7 +79,7 @@ public class BoardManager {
                 dto.setBdate(rs.getString("bdate"));
                 dto.setReadcnt(rs.getInt("readcnt"));
                 dto.setNested(rs.getInt("nested"));
-                dto.setImageUrl(rs.getString("image_url")); // 🔥 추가
+                dto.setImageUrl(rs.getString("image_url"));
                 list.add(dto);
                 k++;
             }
@@ -105,8 +105,8 @@ public class BoardManager {
         return num;
     }
 
-    public void savaData(BoardBean bean) {
-        String sql = "insert into board values(?,?,?,?,?,?,?,?,?,?,?,?,?)"; // 🔥 컬럼 수 13개
+    public void saveData(BoardBean bean) {
+        String sql = "insert into board values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
         int num = currentMaxNum() + 1;
 
         try(Connection conn = ds.getConnection();
@@ -124,10 +124,11 @@ public class BoardManager {
             pstmt.setInt(10, num); // gnum
             pstmt.setInt(11, 0); // onum
             pstmt.setInt(12, 0); // nested
-            pstmt.setString(13, bean.getImageUrl()); // 🔥 추가
+            pstmt.setString(13, bean.getImageUrl());
+
             pstmt.executeUpdate();
         } catch (Exception e) {
-            System.out.println("savaData err : " + e);
+            System.out.println("saveData err : " + e);
         }
     }
 
@@ -209,7 +210,7 @@ public class BoardManager {
     }
 
     public void saveReplyData(BoardBean bean) {
-        String sql = "insert into board values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "insert into board values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try(Connection conn = ds.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
         ){
@@ -226,7 +227,7 @@ public class BoardManager {
             pstmt.setInt(11, bean.getOnum());
             pstmt.setInt(12, bean.getNested());
             pstmt.setString(13, bean.getImageUrl());
-            pstmt.setInt(14, bean.getRating());
+
             pstmt.executeUpdate();
         } catch (Exception e) {
             System.out.println("saveReplyData err : " + e);
@@ -255,7 +256,7 @@ public class BoardManager {
     }
 
     public void saveEdit(BoardBean bean) {
-        String sql = "update board set name=?,mail=?,title=?,cont=?, image_url=? where num=?"; // 🔥 추가
+        String sql = "update board set name=?,mail=?,title=?,cont=?, image_url=? where num=?";
         try {
             conn = ds.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -263,7 +264,7 @@ public class BoardManager {
             pstmt.setString(2, bean.getMail());
             pstmt.setString(3, bean.getTitle());
             pstmt.setString(4, bean.getCont());
-            pstmt.setString(5, bean.getImageUrl()); // 🔥 추가
+            pstmt.setString(5, bean.getImageUrl());
             pstmt.setInt(6, bean.getNum());
             pstmt.executeUpdate();
         } catch (Exception e) {
@@ -303,7 +304,7 @@ public class BoardManager {
                 dto.setBdate(rs.getString("bdate"));
                 dto.setNested(rs.getInt("nested"));
                 dto.setTitle(rs.getString("title"));
-                dto.setImageUrl(rs.getString("image_url")); // 🔥 추가
+                dto.setImageUrl(rs.getString("image_url"));
                 comments.add(dto);
             }
             rs.close();
