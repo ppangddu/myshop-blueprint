@@ -15,7 +15,6 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="../css/board.css">
-
     <script>
         function check(){
             if(frm.name.value==""){
@@ -36,9 +35,17 @@
             }else
                 frm.submit();
         }
-    </script>
 
-    <title>Insert title here</title>
+        function setRating(value) {
+            document.getElementById("ratingValue").value = value;
+            const stars = document.querySelectorAll(".star");
+            stars.forEach((star, idx) => {
+                star.textContent = idx < value ? '★' : '☆';
+                star.style.color = idx < value ? 'gold' : 'lightgray';
+            });
+        }
+    </script>
+    <title>댓글 쓰기</title>
 </head>
 <body>
 <form name="frm" method="post" action="replysave.jsp">
@@ -72,6 +79,52 @@
             <td align="center">내 용</td>
             <td><textarea name="cont" rows="10" style="width:100%"></textarea></td>
         </tr>
+        <% if (dto.getNested() == 0) { %>
+        <tr>
+            <td align="center">별점</td>
+            <td>
+                <div id="star-rating">
+                    <input type="hidden" name="rating" id="rating" value="0">
+                    <% for (int i = 1; i <= 5; i++) { %>
+                    <span class="star" data-value="<%=i%>">☆</span>
+                    <% } %>
+                </div>
+                <style>
+                    .star {
+                        font-size: 24px;
+                        cursor: pointer;
+                        color: lightgray;
+                        transition: color 0.2s;
+                    }
+                    .star.selected {
+                        color: gold;
+                    }
+                    .star:hover {
+                        color: orange;
+                    }
+                </style>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const stars = document.querySelectorAll("#star-rating .star");
+                        const ratingInput = document.getElementById("rating");
+
+                        stars.forEach((star, idx) => {
+                            star.addEventListener("click", () => {
+                                const rating = idx + 1;
+                                ratingInput.value = rating;
+
+                                stars.forEach((s, i) => {
+                                    s.classList.toggle("selected", i < rating);
+                                    s.textContent = i < rating ? "★" : "☆";
+                                });
+                            });
+                        });
+                    });
+                </script>
+            </td>
+        </tr>
+        <% } %>
+
         <tr>
             <td colspan="2" align="center" height="30">
                 <input type="button" value="작  성" onClick="check()">&nbsp;

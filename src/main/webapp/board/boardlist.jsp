@@ -66,7 +66,15 @@
         <td>
             [ <a href="../index.html">메인으로</a> ]&nbsp;
             [ <a href="boardlist.jsp?page=1">최근목록</a> ]&nbsp;
+            <%
+                String adminOk = (String) session.getAttribute("adminOk");
+                if (adminOk != null && adminOk.equals("admin")) {
+            %>
             [ <a href="boardwrite.jsp">새글작성</a> ]&nbsp;
+            <%
+                }
+            %>
+
             [ <a href="#" onclick="window.open('admin.jsp','','width=500,height=300,top=200,left=300')">관리자용</a> ]&nbsp;
             <br>
             <br>
@@ -118,7 +126,7 @@
                     </td>
 
                     <td><%= dto.getName() %></td>
-                    <td><%= dto.getBdate() %></td>
+                    <td><%= dto.getReleaseDate() %></td>
                     <td><%= dto.getReadcnt() %></td>
                 </tr>
                 <%

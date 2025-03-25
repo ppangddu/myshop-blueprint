@@ -8,47 +8,45 @@
   <link rel="stylesheet" type="text/css" href="../css/board.css">
   <script>
     function check(){
-      if(frm.name.value==""){
-        alert("이름을 입력하세요");
-        frm.name.focus();
-      }else if(frm.pass.value ==""){
-        alert("비밀번호를 입력하세요");
-        frm.pass.focus();
-      }else if(frm.mail.value ==""){
-        alert("이메일을 입력하세요");
-        frm.mail.focus();
-      }else if(frm.title.value ==""){
+      if(frm.title.value ==""){
         alert("제목을 입력하세요");
         frm.title.focus();
-      }else if(frm.cont.value ==""){
+      }else if(frm.name.value =="") {
+        alert("감독을 입력하세요");
+      } else if(frm.releaseDate.value =="") {
+        alert("개봉일을 입력하세요");
+      } else if(frm.cont.value ==""){
         alert("내용을 입력하세요");
         frm.cont.focus();
-      }else
+      }else if(frm.imageUrl.value ==""){
+        alert("내용을 입력하세요");
+        frm.cont.focus();
+      } else
         frm.submit();
     }
   </script>
 </head>
 <body>
 <form name="frm" method="post" action="boardsave.jsp">
+  <!-- 관리자 이름 자동 설정 -->
+  <input type="hidden" name="pass" value="adminpass">
+  <input type="hidden" name="mail" value="admin@site.com">
+
   <table border="1">
     <tr>
       <td colspan="2"><h2>*** 글쓰기 ***</h2></td>
     </tr>
     <tr>
-      <td align="center" width="100">이 름</td>
-      <td width="430"><input name="name" size="15"></td>
-    </tr>
-    <tr>
-      <td align="center">암 호</td>
-      <td><input type="password" name="pass" size="15"></td>
-    </tr>
-    <tr>
-      <td align="center">메 일</td>
-      <td><input name="mail" size="25"></td>
-    </tr>
-    <tr>
-      <td align="center">제 목</td>
+      <td align="center">영화제목</td>
       <td><input name="title" size="50"></td>
+    </tr>
+    <tr>
+      <td align="center">감독</td>
+      <td><input name="name" size="50"></td>
+    </tr>
+    <tr>
+      <td align="center">개봉일</td>
+      <td><input type="text" name="releaseDate" placeholder="YYYY-MM-DD"></td>
     </tr>
     <tr>
       <td align="center">내 용</td>
