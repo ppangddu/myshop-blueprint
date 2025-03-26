@@ -39,27 +39,21 @@
   <input type="hidden" name="page" value="<%=bpage %>">
   <table border="1">
     <tr>
-      <td>이름</td>
+      <td>영화제목</td>
       <td>
-        <input type="text" name="name" style="width: 98%" value="<%=dto.getName() %>">
+        <input type="text" name="name" style="width: 98%" value="<%=dto.getTitle() %>">
       </td>
     </tr>
     <tr>
-      <td>비밀번호</td>
+      <td>감독</td>
       <td>
-        <input type="password" name="pass" style="width: 98%">
+        <input type="email" name="mail" style="width: 98%" value="<%=dto.getName() %>">
       </td>
     </tr>
     <tr>
-      <td>이메일</td>
+      <td>개봉일</td>
       <td>
-        <input type="email" name="mail" style="width: 98%" value="<%=dto.getMail() %>">
-      </td>
-    </tr>
-    <tr>
-      <td>글제목</td>
-      <td>
-        <input type="text" name="title" style="width: 98%" value="<%=dto.getTitle()%>">
+        <input type="text" name="title" style="width: 98%" value="<%=dto.getReleaseDate()%>">
       </td>
     </tr>
     <tr>

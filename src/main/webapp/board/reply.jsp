@@ -23,12 +23,6 @@
             }else if(frm.pass.value ==""){
                 alert("비밀번호를 입력하세요");
                 frm.pass.focus();
-            }else if(frm.mail.value ==""){
-                alert("이메일을 입력하세요");
-                frm.mail.focus();
-            }else if(frm.title.value ==""){
-                alert("제목을 입력하세요");
-                frm.title.focus();
             }else if(frm.cont.value ==""){
                 alert("내용을 입력하세요");
                 frm.cont.focus();
@@ -65,15 +59,6 @@
         <tr>
             <td align="center">암 호</td>
             <td><input type="password" name="pass" size="15"></td>
-        </tr>
-        <tr>
-            <td align="center">메 일</td>
-            <td><input name="mail" style="width:100%"></td>
-        </tr>
-        <tr>
-            <td align="center">제 목</td>
-            <td><input name="title" style="width:100%"
-                       value="[RE]:<%= dto.getTitle().length() > 2 ? dto.getTitle().substring(0, 2) : dto.getTitle() %>"></td>
         </tr>
         <tr>
             <td align="center">내 용</td>
