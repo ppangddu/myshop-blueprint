@@ -1,4 +1,4 @@
-<%@ page import="pack.board.BoardDto" %>
+<%@ page import="pack.review.ReviewDto" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
@@ -6,8 +6,8 @@
     response.setHeader("Pragma", "no-cache");
     response.setDateHeader("Expires", 0);
 %>
-<jsp:useBean id="boardManager" class="pack.board.BoardManager" scope="page" />
-<jsp:useBean id="dto" class="pack.board.BoardDto" />
+<jsp:useBean id="boardManager" class="pack.review.ReviewManager" scope="page" />
+<jsp:useBean id="dto" class="pack.review.ReviewDto" />
 <%
     String num = request.getParameter("num");
     String bpage = request.getParameter("page");
@@ -32,7 +32,7 @@
             <a href="reply.jsp?num=<%=dto.getNum() %>&page=<%=bpage %>"><img src="../images/reply.gif"></a>
             <a href="edit.jsp?num=<%=dto.getNum() %>&page=<%=bpage %>"><img src="../images/edit.gif"></a>
             <a href="delete.jsp?num=<%=dto.getNum() %>&page=<%=bpage %>"><img src="../images/del.gif"></a>
-            <a href="boardlist.jsp?num=<%=dto.getNum() %>&page=<%=bpage %>"><img src="../images/list.gif"></a>
+            <a href="reviewlist.jsp?num=<%=dto.getNum() %>&page=<%=bpage %>"><img src="../images/list.gif"></a>
         </td>
     </tr>
     <tr style="height: 30">

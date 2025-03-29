@@ -1,4 +1,4 @@
-package pack.board;
+package pack.review;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-public class BoardManager {
+public class ReviewManager {
     private Connection conn;
     private PreparedStatement pstmt;
     private ResultSet rs;
@@ -18,7 +18,7 @@ public class BoardManager {
     private int pageList = 10;
     private int pageTot;
 
-    public BoardManager() {
+    public ReviewManager() {
         try {
             Context context = new InitialContext();
             ds = (DataSource) context.lookup("java:comp/env/jdbc_maria");
@@ -28,7 +28,7 @@ public class BoardManager {
     }
 
     public void totalList() {
-        String sql = "select count(*) from board where num=gnum";
+        String sql = "select count(*) from review where num=gnum";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
@@ -45,9 +45,9 @@ public class BoardManager {
         return pageTot;
     }
 
-    public ArrayList<BoardDto> getDataAll(int page, String searchType, String searchWord) {
-        ArrayList<BoardDto> list = new ArrayList<>();
-        String sql = "select * from board";
+    public ArrayList<ReviewDto> getDataAll(int page, String searchType, String searchWord) {
+        ArrayList<ReviewDto> list = new ArrayList<>();
+        String sql = "select * from review";
 
         try {
             conn = ds.getConnection();
@@ -69,7 +69,7 @@ public class BoardManager {
 
             int k = 0;
             while (rs.next() && k < pageList) {
-                BoardDto dto = new BoardDto();
+                ReviewDto dto = new ReviewDto();
                 dto.setNum(rs.getInt("num"));
                 dto.setName(rs.getString("name"));
                 dto.setTitle(rs.getString("title"));
@@ -97,7 +97,7 @@ public class BoardManager {
     }
 
     public int currentMaxNum() {
-        String sql = "select max(num) from board";
+        String sql = "select max(num) from review";
         int num = 0;
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -109,8 +109,8 @@ public class BoardManager {
         return num;
     }
 
-    public void saveData(BoardBean bean) {
-        String sql = "INSERT INTO board (num, name, pass, mail, title, cont, bip, bdate, readcnt, gnum, onum, nested, image_url, rating, like_count, release_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    public void saveData(ReviewBean bean) {
+        String sql = "INSERT INTO review (num, name, pass, mail, title, cont, bip, bdate, readcnt, gnum, onum, nested, image_url, rating, like_count, release_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         int num = currentMaxNum() + 1;
 
@@ -139,7 +139,7 @@ public class BoardManager {
     }
 
     public void updateReadcnt(String num) {
-        String sql = "update board set readcnt=readcnt + 1 where num=?";
+        String sql = "update review set readcnt=readcnt + 1 where num=?";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, num);
@@ -149,15 +149,15 @@ public class BoardManager {
         }
     }
 
-    public BoardDto getData(String num) {
-        String sql = "select * from board where num=?";
-        BoardDto dto = null;
+    public ReviewDto getData(String num) {
+        String sql = "select * from review where num=?";
+        ReviewDto dto = null;
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, num);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    dto = new BoardDto();
+                    dto = new ReviewDto();
                     dto.setNum(rs.getInt("num"));
                     dto.setName(rs.getString("name"));
                     dto.setPass(rs.getString("pass"));
@@ -179,15 +179,15 @@ public class BoardManager {
         return dto;
     }
 
-    public BoardDto getReplyData(String num) {
-        String sql = "select * from board where num=?";
-        BoardDto dto = null;
+    public ReviewDto getReplyData(String num) {
+        String sql = "select * from review where num=?";
+        ReviewDto dto = null;
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, num);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    dto = new BoardDto();
+                    dto = new ReviewDto();
                     dto.setTitle(rs.getString("title"));
                     dto.setGnum(rs.getInt("gnum"));
                     dto.setOnum(rs.getInt("onum"));
@@ -201,7 +201,7 @@ public class BoardManager {
     }
 
     public void updateOnum(int gnum, int onum) {
-        String sql = "update board set onum = onum + 1 where onum >= ? and gnum = ?";
+        String sql = "update review set onum = onum + 1 where onum >= ? and gnum = ?";
         try {
             conn = ds.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -220,8 +220,8 @@ public class BoardManager {
         }
     }
 
-    public void saveReplyData(BoardBean bean) {
-        String sql = "insert into board values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    public void saveReplyData(ReviewBean bean) {
+        String sql = "insert into review values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, bean.getNum());
@@ -248,7 +248,7 @@ public class BoardManager {
 
     public boolean checkPassword(int num, String newPass) {
         boolean b = false;
-        String sql = "select pass from board where num=?";
+        String sql = "select pass from review where num=?";
         try {
             conn = ds.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -272,8 +272,8 @@ public class BoardManager {
         return b;
     }
 
-    public void saveEdit(BoardBean bean) {
-        String sql = "update board set name=?,mail=?,title=?,cont=?, image_url=? where num=?";
+    public void saveEdit(ReviewBean bean) {
+        String sql = "update review set name=?,mail=?,title=?,cont=?, image_url=? where num=?";
         try {
             conn = ds.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -297,7 +297,7 @@ public class BoardManager {
     }
 
     public void delData(String num) {
-        String sql = "delete from board where gnum=?";
+        String sql = "delete from review where gnum=?";
         try {
             conn = ds.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -315,16 +315,16 @@ public class BoardManager {
         }
     }
 
-    public ArrayList<BoardDto> getComments(int originalNum) {
-        ArrayList<BoardDto> comments = new ArrayList<>();
-        String sql = "SELECT * FROM board WHERE gnum=? AND num != ? ORDER BY onum ASC";
+    public ArrayList<ReviewDto> getComments(int originalNum) {
+        ArrayList<ReviewDto> comments = new ArrayList<>();
+        String sql = "SELECT * FROM review WHERE gnum=? AND num != ? ORDER BY onum ASC";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, originalNum);
             pstmt.setInt(2, originalNum);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                BoardDto dto = new BoardDto();
+                ReviewDto dto = new ReviewDto();
                 dto.setNum(rs.getInt("num"));
                 dto.setName(rs.getString("name"));
                 dto.setCont(rs.getString("cont"));
@@ -348,7 +348,7 @@ public class BoardManager {
     }
 
     public void increaseLikeCount(int num) {
-        String sql = "update board set like_count = like_count + 1 where num=?";
+        String sql = "update review set like_count = like_count + 1 where num=?";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, num);
@@ -359,7 +359,7 @@ public class BoardManager {
     }
 
     public int getLikeCount(int num) {
-        String sql = "SELECT like_count FROM board WHERE num=?";
+        String sql = "SELECT like_count FROM review WHERE num=?";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, num);
@@ -371,6 +371,22 @@ public class BoardManager {
             System.out.println("getLikeCount err : " + e);
         }
         return 0;
+    }
+
+    public double getAverageRating(int gnum) {
+        double avg = 0;
+        String sql = "select avg(rating) from review where gnum=? and nested=1 and rating > 0";
+        try (Connection conn = ds.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, gnum);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                avg = rs.getDouble(1);
+            }
+        } catch (Exception e) {
+            System.out.println("getAverageRating err : " + e);
+        }
+        return avg;
     }
 
 

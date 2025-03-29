@@ -2,9 +2,9 @@
          pageEncoding="UTF-8"%>
 <% request.setCharacterEncoding("utf-8"); %>
 
-<jsp:useBean id="bean" class="pack.board.BoardBean" />
+<jsp:useBean id="bean" class="pack.review.ReviewBean" />
 <jsp:setProperty property="*" name="bean" />
-<jsp:useBean id="boardManager" class="pack.board.BoardManager" />
+<jsp:useBean id="reviewManager" class="pack.review.ReviewManager" />
 
 <%
   String bpage = request.getParameter("page"); // 페이지는 따로 받는다
@@ -15,12 +15,12 @@
   int onum = bean.getOnum() + 1;
   int nested = bean.getNested() + 1;
 
-  boardManager.updateOnum(gnum, onum); // onum 정렬 처리
+  reviewManager.updateOnum(gnum, onum); // onum 정렬 처리
   bean.setOnum(onum);
   bean.setNested(nested);
   bean.setBip(request.getRemoteAddr());
   bean.setBdate();
-  bean.setNum(boardManager.currentMaxNum() + 1);
+  bean.setNum(reviewManager.currentMaxNum() + 1);
 
   // 별점은 nested == 1일 때만 저장
   int rating = 0;
@@ -34,8 +34,8 @@
   bean.setRating(rating);
 
   // 저장
-  boardManager.saveReplyData(bean);
+  reviewManager.saveReplyData(bean);
 
   // 원글로 리다이렉트
-  response.sendRedirect("boardcontent.jsp?num=" + bean.getGnum() + "&page=" + bpage);
+  response.sendRedirect("reviewcontent.jsp?num=" + bean.getGnum() + "&page=" + bpage);
 %>

@@ -1,4 +1,4 @@
-package com.example.myshop;
+package org.example.review;
 
 import java.io.*;
 

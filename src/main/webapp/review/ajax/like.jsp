@@ -1,10 +1,10 @@
-<%@ page import="pack.board.BoardManager" %>
+<%@ page import="pack.review.ReviewManager" %>
 <%@ page language="java" contentType="text/plain; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
     String numStr = request.getParameter("num");
     if (numStr != null) {
         int num = Integer.parseInt(numStr);
-        BoardManager manager = new BoardManager();
+        ReviewManager manager = new ReviewManager();
         manager.increaseLikeCount(num);
 
         // DB에서 갱신된 값 다시 가져오기

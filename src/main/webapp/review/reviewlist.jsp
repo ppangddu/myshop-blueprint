@@ -1,4 +1,4 @@
-<%@page import="pack.board.BoardDto"%>
+<%@page import="pack.review.ReviewDto"%>
 <%@page import="java.util.ArrayList"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
@@ -10,8 +10,8 @@
 %>
 
 
-<jsp:useBean id="boardManager" class="pack.board.BoardManager"></jsp:useBean>
-<jsp:useBean id="dto" class="pack.board.BoardDto"></jsp:useBean>
+<jsp:useBean id="boardManager" class="pack.review.ReviewManager"></jsp:useBean>
+<jsp:useBean id="dto" class="pack.review.ReviewDto"></jsp:useBean>
 <%
     int pageSu, bpage = 1; // page는 예약어이므로 bpage 선언
 %>
@@ -65,12 +65,12 @@
     <tr>
         <td>
             [ <a href="../index.html">메인으로</a> ]&nbsp;
-            [ <a href="boardlist.jsp?page=1">최근목록</a> ]&nbsp;
+            [ <a href="reviewlist.jsp?page=1">최근목록</a> ]&nbsp;
             <%
                 String adminOk = (String) session.getAttribute("adminOk");
                 if (adminOk != null && adminOk.equals("admin")) {
             %>
-            [ <a href="boardwrite.jsp">새글작성</a> ]&nbsp;
+            [ <a href="reviewwrite.jsp">새글작성</a> ]&nbsp;
             <%
                 }
             %>
@@ -102,7 +102,7 @@
                     pageSu = boardManager.getPageSu(); // 전체 레코드 수 구하기
 
                     // ArrayList<BoardDto> list = boardManager.getDataAll(bpage); // 검색 X
-                    ArrayList<BoardDto> list = boardManager.getDataAll(bpage, searchType, searchWord); // 검색 O
+                    ArrayList<ReviewDto> list = boardManager.getDataAll(bpage, searchType, searchWord); // 검색 O
 
                     for(int i = 0; i < list.size(); i++) {
                         dto = list.get(i); //list에는 boardDto타입만 있으니 캐스팅 안 해도 된다.
@@ -118,7 +118,7 @@
                     <td><%= boardManager.getTotalRecordCount() - ((bpage - 1) * 10 + i) %></td>
                     <td>
                         <%=tab %>
-                        <a href="boardcontent.jsp?num=<%=dto.getNum()%>&page=<%=bpage%>">
+                        <a href="reviewcontent.jsp?num=<%=dto.getNum()%>&page=<%=bpage%>">
                             <img src="<%= dto.getImageUrl() %>" alt="영화 포스터"
                                  style="width:120px;height:180px;vertical-align:middle;margin-right:10px;border-radius:6px;">
                             <%= dto.getTitle() %>
@@ -142,13 +142,13 @@
                                 if (i == bpage) {
                                     out.print("<b style='font-size:12pt;color:blue'>[" + i + "]</b>");
                                 } else {
-                                    out.print("<a href='boardlist.jsp?page=" + i + "'>[" + i + "]</a>");
+                                    out.print("<a href='reviewlist.jsp?page=" + i + "'>[" + i + "]</a>");
 
                                 }
                             }
                         %>
                         <br><br>
-                        <form action="boardlist.jsp" name="frm" method="post">
+                        <form action="reviewlist.jsp" name="frm" method="post">
                             <select name="searchType">
                                 <option value="title" selected="selected">영화제목</option>
                                 <option value="name">감독</option>
