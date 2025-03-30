@@ -7,6 +7,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReviewManager {
     private Connection conn;
@@ -315,14 +318,16 @@ public class ReviewManager {
         }
     }
 
-    public ArrayList<ReviewDto> getComments(int originalNum) {
-        ArrayList<ReviewDto> comments = new ArrayList<>();
-        String sql = "SELECT * FROM review WHERE gnum=? AND num != ? ORDER BY onum ASC";
+    public ArrayList<ReviewDto> getComments(int gnum) {
+        ArrayList<ReviewDto> all = new ArrayList<>();
+        ArrayList<List<ReviewDto>> grouped = new ArrayList<>();
+
+        String sql = "SELECT * FROM review WHERE gnum=? ORDER BY onum ASC";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, originalNum);
-            pstmt.setInt(2, originalNum);
+            pstmt.setInt(1, gnum);
             ResultSet rs = pstmt.executeQuery();
+
             while (rs.next()) {
                 ReviewDto dto = new ReviewDto();
                 dto.setNum(rs.getInt("num"));
@@ -334,14 +339,51 @@ public class ReviewManager {
                 dto.setImageUrl(rs.getString("image_url"));
                 dto.setRating(rs.getInt("rating"));
                 dto.setLikeCount(rs.getInt("like_count"));
-                comments.add(dto);
+                dto.setOnum(rs.getInt("onum"));
+                all.add(dto);
             }
             rs.close();
         } catch (Exception e) {
             System.out.println("getComments err : " + e);
         }
-        return comments;
+
+        // 1. 댓글과 대댓글 묶기 (한 댓글 그룹은 하나의 List<ReviewDto>)
+        for (int i = 0; i < all.size(); i++) {
+            ReviewDto dto = all.get(i);
+            if (dto.getNested() == 1) {
+                List<ReviewDto> group = new ArrayList<>();
+                group.add(dto);
+
+                int parentOnum = dto.getOnum();
+                for (int j = i + 1; j < all.size(); j++) {
+                    ReviewDto next = all.get(j);
+                    if (next.getNested() == 1) break; // 다음 댓글이면 끝
+
+                    group.add(next);
+                }
+                grouped.add(group);
+            }
+        }
+        // 2. 각 그룹 내에서 대댓글들을 좋아요 순으로 정렬
+        for (List<ReviewDto> group : grouped) {
+            group.sort((r1, r2) -> Integer.compare(r2.getLikeCount(), r1.getLikeCount()));
+        }
+
+        // 3. 그룹을 원댓글의 like_count 기준으로 정렬
+        grouped.sort((g1, g2) -> Integer.compare(
+                g2.get(0).getLikeCount(), g1.get(0).getLikeCount()
+        ));
+
+        // 3. 평평하게 풀어서 리턴
+        ArrayList<ReviewDto> result = new ArrayList<>();
+        for (List<ReviewDto> group : grouped) {
+            result.addAll(group);
+        }
+
+        return result;
     }
+
+
 
     public int getTotalRecordCount() {
         return recTot;
@@ -391,3 +433,5 @@ public class ReviewManager {
 
 
 }
+
+

@@ -27,11 +27,37 @@
   bean.setBdate();
   bean.setNum(reviewManager.currentMaxNum() + 1);
 
+  String name = request.getParameter("name");
+  String pass = request.getParameter("pass");
+  String mail = request.getParameter("mail");
+  String title = request.getParameter("title");
+  String cont = request.getParameter("cont");
+
   bean.setName(request.getParameter("name"));
   bean.setPass(request.getParameter("pass"));
   bean.setMail(request.getParameter("mail"));
   bean.setTitle(request.getParameter("title"));
   bean.setCont(request.getParameter("cont"));
+
+  //비속어 필터링
+  String[] badWords = {"프", "로", "젝", "트"};
+  boolean hasBadWord = false;
+
+  for(String word : badWords){
+    if(cont != null && cont.contains(word)){
+      hasBadWord = true;
+      break;
+    }
+  }
+
+  if(hasBadWord){
+    out.println("<script>");
+    out.println("alert('금지된 단어가 포함되어 있습니다.');");
+    out.println("history.back();");
+    out.println("</script>");
+    return;
+  }
+
 
   // 별점은 nested == 1일 때만 저장
   int rating = 0;

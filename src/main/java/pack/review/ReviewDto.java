@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class ReviewDto {
     private int num, readcnt, gnum, onum, nested, rating, likeCount;
-    private String name, pass, mail, title, cont, bip, bdate, imageUrl, releaseDate;
+    private String name, id, pass, mail, title, cont, bip, bdate, imageUrl, releaseDate;
 
 }
