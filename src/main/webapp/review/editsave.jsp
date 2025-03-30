@@ -1,16 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <% request.setCharacterEncoding("utf-8"); %>
-
-<jsp:useBean id="bean" class="pack.review.ReviewBean" />
-<jsp:setProperty property="*" name="bean" /> <!-- num도 같이 들어옴 -->
-<jsp:useBean id="reviewManager" class="pack.review.ReviewManager" />
+<%@page import="pack.review.ReviewManager" %>
+<%@page import="pack.review.ReviewBean" %>
 
 <%
     String bpage = request.getParameter("page");
-// num은 FormBean을 타고 이미 저장됨
 
-// 비밀번호 비교 후 수정 여부 결정
+    // Bean 객체 생성 및 값 세팅
+    ReviewBean bean = new ReviewBean();
+    bean.setNum(Integer.parseInt(request.getParameter("num")));
+    bean.setName(request.getParameter("name"));
+    bean.setPass(request.getParameter("pass"));
+    bean.setMail(request.getParameter("mail"));
+    bean.setTitle(request.getParameter("title"));
+    bean.setCont(request.getParameter("cont"));
+
+    ReviewManager reviewManager = new ReviewManager();
+    // 비밀번호 비교 후 수정 여부 결정
     boolean b = reviewManager.checkPassword(bean.getNum(), bean.getPass()); // 비번 비교
 
     if (b) {

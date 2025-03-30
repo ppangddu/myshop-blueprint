@@ -8,17 +8,17 @@
   <link rel="stylesheet" type="text/css" href="../css/board.css">
   <script>
     function check(){
-      if(frm.title.value ==""){
+      if(frm.title.value.trim() ==""){
         alert("제목을 입력하세요");
         frm.title.focus();
-      }else if(frm.name.value =="") {
+      }else if(frm.name.value.trim() =="") {
         alert("감독을 입력하세요");
-      } else if(frm.releaseDate.value =="") {
+      } else if(frm.releaseDate.value.trim() =="") {
         alert("개봉일을 입력하세요");
-      } else if(frm.cont.value ==""){
+      } else if(frm.cont.value.trim() ==""){
         alert("내용을 입력하세요");
         frm.cont.focus();
-      }else if(frm.imageUrl.value ==""){
+      }else if(frm.imageUrl.value.trim() ==""){
         alert("내용을 입력하세요");
         frm.cont.focus();
       } else
@@ -54,7 +54,7 @@
     </tr>
     <tr>
       <td align="center">이미지url</td>
-      <td><input type="text" name="imageUrl" sizw="20"></td>
+      <td><input type="text" name="imageUrl" size="20"></td>
     </tr>
     <tr>
       <td colspan="2" align="center" height="30">

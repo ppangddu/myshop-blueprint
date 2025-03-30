@@ -1,21 +1,26 @@
-<%@ page import="pack.review.ReviewDto" %>
-<%@ page import="java.util.ArrayList" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="pack.review.ReviewDto" %>
+<%@ page import="pack.review.ReviewManager" %>
+
 <%
     response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     response.setHeader("Pragma", "no-cache");
     response.setDateHeader("Expires", 0);
-%>
-<jsp:useBean id="boardManager" class="pack.review.ReviewManager" scope="page" />
-<jsp:useBean id="dto" class="pack.review.ReviewDto" />
-<%
+
     String num = request.getParameter("num");
     String bpage = request.getParameter("page");
-    boardManager.updateReadcnt(num);
-    dto = boardManager.getData(num);
-    String apass = "****";
+
+    ReviewManager reviewManager = new ReviewManager();
+    reviewManager.updateReadcnt(num);
+
+    ReviewDto dto = reviewManager.getData(num);
+
     String adminOk = (String) session.getAttribute("adminOk");
-    if (adminOk != null && adminOk.equals("admin")) apass = dto.getPass();
+    String apass = (adminOk != null && adminOk.equals("admin")) ? dto.getPass() : "****";
+
+    request.setAttribute("dto", dto);
+    request.setAttribute("bpage", bpage);
+    request.setAttribute("apass", apass);
 %>
 <!DOCTYPE html>
 <html>
@@ -27,25 +32,25 @@
 <body>
 <table>
     <tr>
-        <td><b>비밀번호 : <%=apass %></b></td>
+        <td><b>비밀번호 : ${apass}</b></td>
         <td colspan="2" style="text-align: right">
-            <a href="reply.jsp?num=<%=dto.getNum() %>&page=<%=bpage %>"><img src="../images/reply.gif"></a>
-            <a href="edit.jsp?num=<%=dto.getNum() %>&page=<%=bpage %>"><img src="../images/edit.gif"></a>
-            <a href="delete.jsp?num=<%=dto.getNum() %>&page=<%=bpage %>"><img src="../images/del.gif"></a>
-            <a href="reviewlist.jsp?num=<%=dto.getNum() %>&page=<%=bpage %>"><img src="../images/list.gif"></a>
+            <a href="reply.jsp?num=${dto.num}&page=${bpage}"><img src="../images/reply.gif"></a>
+            <a href="edit.jsp?num=${dto.num}&page=${bpage}"><img src="../images/edit.gif"></a>
+            <a href="delete.jsp?num=${dto.num}&page=${bpage}"><img src="../images/del.gif"></a>
+            <a href="reviewlist.jsp?num=${dto.num}&page=${bpage}"><img src="../images/list.gif"></a>
         </td>
     </tr>
     <tr style="height: 30">
-        <td>작성자: <a href="mailto:<%=dto.getMail() %>"><%=dto.getName() %></a>(ip : <%=dto.getBip() %>)</td>
-        <td>작성일: <%=dto.getBdate() %></td>
-        <td>조회수: <%=dto.getReadcnt() %></td>
+        <td>작성자: <a href="mailto:${dto.mail}">${dto.name}</a>(ip : ${dto.bip}</td>
+        <td>작성일: ${dto.bdate}</td>
+        <td>조회수: ${dto.readcnt}</td>
     </tr>
     <tr>
-        <td colspan="3" style="background-color: cyan">제목 : <%=dto.getTitle() %></td>
+        <td colspan="3" style="background-color: cyan">제목 : ${dto.title}</td>
     </tr>
     <tr>
         <td colspan="3">
-            <textarea rows="10" style="width: 99%" readonly="readonly"><%=dto.getCont() %></textarea>
+            <textarea rows="10" style="width: 99%" readonly="readonly">${dto.cont}</textarea>
         </td>
     </tr>
     <tr>
@@ -55,7 +60,7 @@
 
             <!-- 댓글 입력 폼 -->
             <form id="replyForm">
-                <input type="hidden" name="gnum" value="<%=dto.getNum()%>">
+                <input type="hidden" name="gnum" value="${dto.num}">
                 <input type="hidden" name="onum" value="0">
                 <input type="hidden" name="nested" value="1">
                 <input type="text" name="name" placeholder="작성자" required><br>
@@ -71,7 +76,7 @@
 
 <script>
     function loadComments() {
-        fetch("get_comments.jsp?gnum=<%=dto.getNum()%>")
+        fetch("get_comments.jsp?gnum=${dto.num}")
             .then(res => res.json())
             .then(data => {
                 const container = document.getElementById("commentList");
