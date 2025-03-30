@@ -2,22 +2,44 @@
          pageEncoding="UTF-8"%>
 <%@ page import="pack.review.ReviewManager" %>
 <%@ page import="pack.review.ReviewDto" %>
+<%@ page import="pack.cookie.CookieManager" %>
+<%@ page import="jakarta.servlet.http.Cookie" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-
 
 <%
     String num = request.getParameter("num");
     String bpage = request.getParameter("page");
 
     ReviewManager reviewManager = new ReviewManager();
-    ReviewDto dto = reviewManager.getReplyData(num); // 해당 댓글의 원글 정보 읽기
+    ReviewDto dto = reviewManager.getReplyData(num);
+
+    CookieManager cm = CookieManager.getInstance();
+    Cookie[] cookies = request.getCookies();
+    String ckName = "", ckPass = "", ckMail = "", ckTitle = "", ckCont = "", ckRating = "";
+
+    if (cookies != null) {
+        for (Cookie c : cookies) {
+            try {
+                switch (c.getName()) {
+                    case "name": ckName = cm.readCookie(c); break;
+                    case "pass": ckPass = cm.readCookie(c); break;
+                    case "mail": ckMail = cm.readCookie(c); break;
+                    case "title": ckTitle = cm.readCookie(c); break;
+                    case "cont": ckCont = cm.readCookie(c); break;
+                    case "rating": ckRating = cm.readCookie(c); break;
+                }
+            } catch (Exception e) {}
+        }
+    }
 
     request.setAttribute("dto", dto);
     request.setAttribute("num", num);
     request.setAttribute("bpage", bpage);
 
+    System.out.println("쿠키 복원 name = " + ckName);
 %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -74,8 +96,19 @@
                         s.classList.toggle("selected", i < rating);
                         s.textContent = i < rating ? "★" : "☆";
                     });
+                    // 쿠키로 저장!
+                    saveToCookie("rating", rating);
                 });
             });
+            // 쿠키에서 복원된 별점 값 적용
+            const initialRating = parseInt("<%= ckRating %>");
+            if (!isNaN(initialRating) && initialRating > 0) {
+                ratingInput.value = initialRating;
+                stars.forEach((star, i) => {
+                    star.classList.toggle("selected", i < initialRating);
+                    star.textContent = i < initialRating ? "★" : "☆";
+                });
+            }
         });
     </script>
 </head>
@@ -87,51 +120,58 @@
     <input type="hidden" name="onum" value="${dto.onum}">
     <input type="hidden" name="nested" value="${dto.nested}">
     <table border="1">
-        <tr>
-            <td colspan="2"><h2>*** 댓글 쓰기 ***</h2></td>
-        </tr>
-        <tr>
-            <td align="center" width="100">이 름</td>
-            <td width="430"><input name="name" size="15"></td>
-        </tr>
-        <tr>
-            <td align="center">암 호</td>
-            <td><input type="password" name="pass" size="15"></td>
-        </tr>
-        <tr>
-            <td align="center">메 일</td>
-            <td><input name="mail" style="width:100%"></td>
-        </tr>
-        <tr>
-            <td align="center">제 목</td>
-            <td><input name="title" style="width:100%"></td>
-        </tr>
-        <tr>
-            <td align="center">내 용</td>
-            <td><textarea name="cont" rows="10" style="width:100%"></textarea></td>
-        </tr>
+        <tr><td colspan="2"><h2>*** 댓글 쓰기 ***</h2></td></tr>
+        <tr><td align="center" width="100">이 름</td>
+            <td width="430"><input name="name" size="15" value="<%= ckName %>"></td></tr>
+        <tr><td align="center">암 호</td>
+            <td><input type="password" name="pass" size="15" value="<%= ckPass %>"></td></tr>
+        <tr><td align="center">메 일</td>
+            <td><input name="mail" style="width:100%" value="<%= ckMail %>"></td></tr>
+        <tr><td align="center">제 목</td>
+            <td><input name="title" style="width:100%" value="<%= ckTitle %>"></td></tr>
+        <tr><td align="center">내 용</td>
+            <td><textarea name="cont" rows="10" style="width:100%"><%= ckCont %></textarea></td></tr>
+
         <c:if test="${dto.nested == 0}">
-        <tr>
-            <td align="center">별점</td>
-            <td>
-                <div id="star-rating">
-                    <input type="hidden" name="rating" id="rating" value="0">
-                    <c:forEach begin="1" end="5" var="i">
-                        <span class="star" data-value="${i}">☆</span>
-                    </c:forEach>
-                </div>
-            </td>
-        </tr>
+            <tr>
+                <td align="center">별점</td>
+                <td>
+                    <div id="star-rating">
+                        <input type="hidden" name="rating" id="rating" value="0">
+                        <c:forEach begin="1" end="5" var="i">
+                            <span class="star" data-value="${i}">☆</span>
+                        </c:forEach>
+                    </div>
+                </td>
+            </tr>
         </c:if>
 
         <tr>
             <td colspan="2" align="center" height="30">
                 <input type="button" value="작  성" onClick="check()">&nbsp;
                 <input type="button" value="목  록"
-                       onClick="location.href='reviewlist.jsp?page=<%=bpage%>'">
+                       onClick="location.href='reviewlist.jsp?page=${bpage}'">
             </td>
         </tr>
     </table>
 </form>
+<script>
+    function saveToCookie(name, value) {
+        fetch("../review/cookie_save.jsp?name=" + encodeURIComponent(name) + "&value=" + encodeURIComponent(value));
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const fields = ["name", "pass", "mail", "title", "cont"];
+        fields.forEach(field => {
+            const el = document.forms["frm"][field];
+            if (el) {
+                el.addEventListener("input", () => {
+                    saveToCookie(field, el.value);
+                });
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

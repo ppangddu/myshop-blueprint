@@ -3,6 +3,8 @@
 <% request.setCharacterEncoding("utf-8"); %>
 <%@page import="pack.review.ReviewBean" %>
 <%@page import="pack.review.ReviewManager" %>
+<%@page import="jakarta.servlet.http.Cookie" %>
+<%@page import="pack.cookie.CookieManager" %>
 
 <%
   String bpage = request.getParameter("page"); // 페이지는 따로 받는다
@@ -44,6 +46,15 @@
 
   // 저장
   reviewManager.saveReplyData(bean);
+
+  //쿠키 삭제
+  CookieManager cm = CookieManager.getInstance();
+  String[] cookieNames = {"name", "pass", "mail", "title", "cont", "rating"};
+  for (String cname : cookieNames) {
+    Cookie delete = cm.deleteCookie(cname);
+    response.addCookie(delete);
+    System.out.println("쿠키 삭제됨: " + cname);
+  }
 
   // 원글로 리다이렉트
   response.sendRedirect("reviewcontent.jsp?num=" + bean.getGnum() + "&page=" + bpage);

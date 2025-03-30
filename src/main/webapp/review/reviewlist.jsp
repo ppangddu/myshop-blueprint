@@ -82,8 +82,9 @@
                         <td>${totalRecord - ((bpage - 1) * 10 + status.index)}</td>
                         <td>
                             <c:forEach begin="1" end="${dto.nested}">&nbsp;&nbsp;</c:forEach>
-                            <a href="reviewcontent.jsp?num=${dto.num}&page=${bpage}">
-                                <img src="${dto.imageUrl}" alt="영화 포스터"
+                            <a href='reviewcontent.jsp?num=${dto.num}&page=${bpage}'>
+
+                            <img src="${dto.imageUrl}" alt="영화 포스터"
                                      style="width:120px;height:180px;vertical-align:middle;margin-right:10px;border-radius:6px;">
                                 ${dto.title}
                             </a>
@@ -104,7 +105,7 @@
                                     <b style='font-size:12pt;color:blue'>[${i}]</b>
                                 </c:when>
                                 <c:otherwise>
-                                    <a href='reviewlist.jsp?page=" + i + "'>[${i}]</a>
+                                    <a href="reviewlist.jsp?page=${i}">[${i}]</a>
                                 </c:otherwise>
                             </c:choose>
                         </c:forEach>
