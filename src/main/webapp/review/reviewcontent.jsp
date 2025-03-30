@@ -111,7 +111,7 @@
             </c:if>
 
             <div>
-              <b>${comment.name}</b> : ${comment.cont}
+              <b>${comment.nickname}</b> : ${comment.cont}
             </div>
 
             <div style="font-size: 0.9em; color: gray; margin-top: 3px;">

@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 @Setter
 public class ReviewBean {
     private int num, readcnt, gnum, onum, nested, rating, likeCount;
-    private String name, id, pass, mail, title, cont, bip, bdate, imageUrl, releaseDate;
+    private String userId, title, cont, bip, bdate, imageUrl, releaseDate, directorName, nickname;
 
     public void setBdate() {
         LocalDateTime now = LocalDateTime.now();

@@ -22,15 +22,24 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>게시판</title>
+  <title>영화 등록 수정</title>
   <link rel="stylesheet" type="text/css" href="../css/board.css">
   <script type="text/javascript">
 
     function check() {
-      if (frm.pass.value === "") {
-        frm.pass.focus();
-        alert("비밀번호를 입력하세요.");
-        return;
+      const frm = document.forms["frm"];
+      if (frm.title.value === "") {
+        frm.title.focus();
+        alert("영화 제목을 입력하세요.");
+      } else if (frm.directorName.value === "") {
+        frm.directorName.focus();
+        alert("감독 이름을 입력하세요.");
+      } else if (frm.cont.value === "") {
+        frm.cont.focus();
+        alert("내용을 입력하세요.");
+      } else if (frm.imageUrl.value === "") {
+        frm.imageUrl.focus();
+        alert("이미지 url을 입력하세요.");
       }
 
       if(confirm("정말 수정할까요?")) {
@@ -47,34 +56,26 @@
   <input type="hidden" name="page" value="${bpage}">
   <table border="1">
     <tr>
-      <td>이름</td>
-      <td>
-        <input type="text" name="name" style="width: 98%" value="${dto.name}">
-      </td>
-    </tr>
-    <tr>
-      <td>비밀번호</td>
-      <td>
-        <input type="password" name="pass" style="width: 98%">
-      </td>
-    </tr>
-    <tr>
-      <td>이메일</td>
-      <td>
-        <input type="email" name="mail" style="width: 98%" value="${dto.mail}">
-      </td>
-    </tr>
-    <tr>
-      <td>글제목</td>
+      <td>영화제목</td>
       <td>
         <input type="text" name="title" style="width: 98%" value="${dto.title}">
       </td>
     </tr>
     <tr>
-      <td>글내용</td>
+      <td>감독</td>
       <td>
-        <textarea rows="10" name="cont" style="width: 98%">${dto.cont}}</textarea>
-
+        <input type="text" name="directorName" style="width: 98%" value="${dto.directorName}">
+      </td>
+    </tr>
+      <td>내용</td>
+      <td>
+        <textarea rows="10" name="cont" style="width: 98%">${dto.cont}</textarea>
+      </td>
+    </tr>
+    <tr>
+      <td>이미지url</td>
+      <td>
+        <input type="text" name="imageUrl" style="width: 98%" value="${dto.imageUrl}">
       </td>
     </tr>
     <tr>

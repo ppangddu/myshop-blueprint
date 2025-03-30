@@ -10,9 +10,7 @@
 
     // 자동으로 채워지는 거 생성
     String title = request.getParameter("title");
-    String name = request.getParameter("name");
-    String pass = request.getParameter("pass");
-    String mail = request.getParameter("mail");
+    String directorName = request.getParameter("directorName");
     String cont = request.getParameter("cont");
     String releaseDate = request.getParameter("releaseDate");
     String imageUrl = request.getParameter("imageUrl");
@@ -20,9 +18,6 @@
     int newNum = reviewManager.currentMaxNum() + 1;
 
     bean.setNum(newNum);
-    bean.setName(name);
-    bean.setPass(pass);
-    bean.setMail(mail);
     bean.setTitle(title);
     bean.setCont(cont);
     bean.setBip(request.getRemoteAddr());
@@ -35,6 +30,7 @@
     bean.setRating(0);
     bean.setLikeCount(0);
     bean.setReleaseDate(releaseDate);
+    bean.setDirectorName(directorName);
 
     reviewManager.saveData(bean);
 

@@ -67,9 +67,7 @@
         <td>
             [ <a href="../index.html">메인으로</a> ]&nbsp;
             [ <a href="reviewlist.jsp?page=1">최근목록</a> ]&nbsp;
-            <c:if test="${adminOk == 'admin'}">
             [ <a href="reviewwrite.jsp">새글작성</a> ]&nbsp;
-            </c:if>
             [ <a href="#" onclick="window.open('admin.jsp','','width=500,height=300,top=200,left=300')">관리자용</a> ]&nbsp;
             <br>
             <br>
@@ -89,7 +87,7 @@
                                 ${dto.title}
                             </a>
                         </td>
-                        <td>${dto.name}</td>
+                        <td>${dto.directorName}</td>
                         <td>${dto.releaseDate}</td>
                         <td>${dto.readcnt}</td>
                     </tr>
@@ -113,7 +111,7 @@
                         <form action="reviewlist.jsp" name="frm" method="post">
                             <select name="searchType">
                                 <option value="title" selected="selected">영화제목</option>
-                                <option value="name">감독</option>
+                                <option value="directorName">감독</option>
                             </select>
                             <input type="text" name="searchWord">
                             <input type="button" value="검색" id="btnSearch">

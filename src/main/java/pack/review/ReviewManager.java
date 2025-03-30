@@ -74,7 +74,6 @@ public class ReviewManager {
             while (rs.next() && k < pageList) {
                 ReviewDto dto = new ReviewDto();
                 dto.setNum(rs.getInt("num"));
-                dto.setName(rs.getString("name"));
                 dto.setTitle(rs.getString("title"));
                 dto.setBdate(rs.getString("bdate"));
                 dto.setReadcnt(rs.getInt("readcnt"));
@@ -83,6 +82,7 @@ public class ReviewManager {
                 dto.setRating(rs.getInt("rating"));
                 dto.setLikeCount(rs.getInt("like_count"));
                 dto.setReleaseDate(rs.getString("release_date"));
+                dto.setDirectorName(rs.getString("director_name"));
                 list.add(dto);
                 k++;
             }
@@ -113,28 +113,27 @@ public class ReviewManager {
     }
 
     public void saveData(ReviewBean bean) {
-        String sql = "INSERT INTO review (num, name, pass, mail, title, cont, bip, bdate, readcnt, gnum, onum, nested, image_url, rating, like_count, release_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO review (num, title, cont, bip, bdate, readcnt, gnum, onum, nested, image_url, rating, like_count, release_date, user_id, director_name) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         int num = currentMaxNum() + 1;
 
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, num);
-            pstmt.setString(2, bean.getName());
-            pstmt.setString(3, bean.getPass());
-            pstmt.setString(4, bean.getMail());
-            pstmt.setString(5, bean.getTitle());
-            pstmt.setString(6, bean.getCont());
-            pstmt.setString(7, bean.getBip());
-            pstmt.setString(8, bean.getBdate());
+            pstmt.setString(2, bean.getTitle());
+            pstmt.setString(3, bean.getCont());
+            pstmt.setString(4, bean.getBip());
+            pstmt.setString(5, bean.getBdate());
+            pstmt.setInt(6, 0);
+            pstmt.setInt(7, num);
+            pstmt.setInt(8, 0);
             pstmt.setInt(9, 0);
-            pstmt.setInt(10, num);
+            pstmt.setString(10, bean.getImageUrl());
             pstmt.setInt(11, 0);
             pstmt.setInt(12, 0);
-            pstmt.setString(13, bean.getImageUrl());
-            pstmt.setInt(14, 0);
-            pstmt.setInt(15, 0);
-            pstmt.setString(16, bean.getReleaseDate());
+            pstmt.setString(13, bean.getReleaseDate());
+            pstmt.setString(14, bean.getUserId());
+            pstmt.setString(15, bean.getDirectorName());
             pstmt.executeUpdate();
         } catch (Exception e) {
             System.out.println("saveData err : " + e);
@@ -162,9 +161,6 @@ public class ReviewManager {
                 if (rs.next()) {
                     dto = new ReviewDto();
                     dto.setNum(rs.getInt("num"));
-                    dto.setName(rs.getString("name"));
-                    dto.setPass(rs.getString("pass"));
-                    dto.setMail(rs.getString("mail"));
                     dto.setTitle(rs.getString("title"));
                     dto.setCont(rs.getString("cont"));
                     dto.setBip(rs.getString("bip"));
@@ -174,6 +170,8 @@ public class ReviewManager {
                     dto.setRating(rs.getInt("rating"));
                     dto.setLikeCount(rs.getInt("like_count"));
                     dto.setReleaseDate(rs.getString("release_date"));
+                    dto.setUserId(rs.getString("user_id"));
+                    dto.setDirectorName(rs.getString("director_name"));
                 }
             }
         } catch (Exception e) {
@@ -224,25 +222,24 @@ public class ReviewManager {
     }
 
     public void saveReplyData(ReviewBean bean) {
-        String sql = "insert into review values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "insert into review values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, bean.getNum());
-            pstmt.setString(2, bean.getName());
-            pstmt.setString(3, bean.getPass());
-            pstmt.setString(4, bean.getMail());
-            pstmt.setString(5, bean.getTitle());
-            pstmt.setString(6, bean.getCont());
-            pstmt.setString(7, bean.getBip());
-            pstmt.setString(8, bean.getBdate());
-            pstmt.setInt(9, 0);
-            pstmt.setInt(10, bean.getGnum());
-            pstmt.setInt(11, bean.getOnum());
-            pstmt.setInt(12, bean.getNested());
-            pstmt.setString(13, bean.getImageUrl());
-            pstmt.setInt(14, bean.getRating());
-            pstmt.setInt(15,0);
-            pstmt.setString(16, bean.getReleaseDate());
+            pstmt.setString(2, bean.getTitle());
+            pstmt.setString(3, bean.getCont());
+            pstmt.setString(4, bean.getBip());
+            pstmt.setString(5, bean.getBdate());
+            pstmt.setInt(6, 0);
+            pstmt.setInt(7, bean.getGnum());
+            pstmt.setInt(8, bean.getOnum());
+            pstmt.setInt(9, bean.getNested());
+            pstmt.setString(10, bean.getImageUrl());
+            pstmt.setInt(11, bean.getRating());
+            pstmt.setInt(12, 0);
+            pstmt.setString(13,bean.getReleaseDate());
+            pstmt.setString(14, bean.getUserId());
+            pstmt.setString(15, bean.getDirectorName());
             pstmt.executeUpdate();
         } catch (Exception e) {
             System.out.println("saveReplyData err : " + e);
@@ -276,16 +273,15 @@ public class ReviewManager {
     }
 
     public void saveEdit(ReviewBean bean) {
-        String sql = "update review set name=?,mail=?,title=?,cont=?, image_url=? where num=?";
+        String sql = "update review set title=?, director_name=?, cont=?, image_url=? where num=?";
         try {
             conn = ds.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, bean.getName());
-            pstmt.setString(2, bean.getMail());
-            pstmt.setString(3, bean.getTitle());
-            pstmt.setString(4, bean.getCont());
-            pstmt.setString(5, bean.getImageUrl());
-            pstmt.setInt(6, bean.getNum());
+            pstmt.setString(1, bean.getTitle());
+            pstmt.setString(2, bean.getDirectorName());
+            pstmt.setString(3, bean.getCont());
+            pstmt.setString(4, bean.getImageUrl());
+            pstmt.setInt(5, bean.getNum());
             pstmt.executeUpdate();
         } catch (Exception e) {
             System.out.println("saveEdit err: " + e);
@@ -322,7 +318,11 @@ public class ReviewManager {
         ArrayList<ReviewDto> all = new ArrayList<>();
         ArrayList<List<ReviewDto>> grouped = new ArrayList<>();
 
-        String sql = "SELECT * FROM review WHERE gnum=? ORDER BY onum ASC";
+        String sql = "SELECT r.*, u.nickname \n" +
+                "FROM review r \n" +
+                "JOIN user u ON r.user_id = u.id \n" +
+                "WHERE r.gnum=? \n" +
+                "ORDER BY r.onum ASC";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, gnum);
@@ -331,7 +331,6 @@ public class ReviewManager {
             while (rs.next()) {
                 ReviewDto dto = new ReviewDto();
                 dto.setNum(rs.getInt("num"));
-                dto.setName(rs.getString("name"));
                 dto.setCont(rs.getString("cont"));
                 dto.setBdate(rs.getString("bdate"));
                 dto.setNested(rs.getInt("nested"));
@@ -340,6 +339,8 @@ public class ReviewManager {
                 dto.setRating(rs.getInt("rating"));
                 dto.setLikeCount(rs.getInt("like_count"));
                 dto.setOnum(rs.getInt("onum"));
+                dto.setUserId(rs.getString("user_id"));
+                dto.setNickname(rs.getString("nickname"));
                 all.add(dto);
             }
             rs.close();
@@ -347,34 +348,43 @@ public class ReviewManager {
             System.out.println("getComments err : " + e);
         }
 
-        // 1. 댓글과 대댓글 묶기 (한 댓글 그룹은 하나의 List<ReviewDto>)
+        // 1. 댓글과 대댓글 묶기 (댓글 하나 + 그에 딸린 대댓글들)
         for (int i = 0; i < all.size(); i++) {
             ReviewDto dto = all.get(i);
             if (dto.getNested() == 1) {
                 List<ReviewDto> group = new ArrayList<>();
-                group.add(dto);
+                group.add(dto); // 원댓글
 
-                int parentOnum = dto.getOnum();
                 for (int j = i + 1; j < all.size(); j++) {
                     ReviewDto next = all.get(j);
-                    if (next.getNested() == 1) break; // 다음 댓글이면 끝
-
-                    group.add(next);
+                    if (next.getNested() == 1) break;
+                    group.add(next); // 대댓글
                 }
-                grouped.add(group);
+
+                // 대댓글만 추출 → nested ASC → 같은 nested 내에서 likeCount DESC
+                ReviewDto origin = group.get(0);
+                List<ReviewDto> replies = group.stream()
+                        .filter(r -> r.getNested() > 1)
+                        .sorted((r1, r2) -> {
+                            int nestedCmp = Integer.compare(r1.getNested(), r2.getNested()); // nested 낮은 것 우선
+                            if (nestedCmp == 0) {
+                                return Integer.compare(r2.getLikeCount(), r1.getLikeCount()); // 같은 nested → 좋아요 순
+                            }
+                            return nestedCmp;
+                        })
+                        .collect(Collectors.toList());
+
+                List<ReviewDto> combined = new ArrayList<>();
+                combined.add(origin);
+                combined.addAll(replies);
+                grouped.add(combined);
             }
         }
-        // 2. 각 그룹 내에서 대댓글들을 좋아요 순으로 정렬
-        for (List<ReviewDto> group : grouped) {
-            group.sort((r1, r2) -> Integer.compare(r2.getLikeCount(), r1.getLikeCount()));
-        }
 
-        // 3. 그룹을 원댓글의 like_count 기준으로 정렬
-        grouped.sort((g1, g2) -> Integer.compare(
-                g2.get(0).getLikeCount(), g1.get(0).getLikeCount()
-        ));
+        // 2. 그룹 정렬 (원댓글 likeCount 기준)
+        grouped.sort((g1, g2) -> Integer.compare(g2.get(0).getLikeCount(), g1.get(0).getLikeCount()));
 
-        // 3. 평평하게 풀어서 리턴
+        // 3. 평평하게 리턴
         ArrayList<ReviewDto> result = new ArrayList<>();
         for (List<ReviewDto> group : grouped) {
             result.addAll(group);
@@ -382,6 +392,7 @@ public class ReviewManager {
 
         return result;
     }
+
 
 
 
@@ -433,5 +444,3 @@ public class ReviewManager {
 
 
 }
-
-

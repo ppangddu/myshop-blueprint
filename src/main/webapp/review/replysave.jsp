@@ -27,17 +27,11 @@
   bean.setBdate();
   bean.setNum(reviewManager.currentMaxNum() + 1);
 
-  String name = request.getParameter("name");
-  String pass = request.getParameter("pass");
-  String mail = request.getParameter("mail");
-  String title = request.getParameter("title");
   String cont = request.getParameter("cont");
-
-  bean.setName(request.getParameter("name"));
-  bean.setPass(request.getParameter("pass"));
-  bean.setMail(request.getParameter("mail"));
-  bean.setTitle(request.getParameter("title"));
   bean.setCont(request.getParameter("cont"));
+
+  String userId = (String) session.getAttribute("user_id");
+  bean.setUserId(userId);
 
   //비속어 필터링
   String[] badWords = {"프", "로", "젝", "트"};
@@ -75,7 +69,7 @@
 
   //쿠키 삭제
   CookieManager cm = CookieManager.getInstance();
-  String[] cookieNames = {"name", "pass", "mail", "title", "cont", "rating"};
+  String[] cookieNames = {"cont", "rating"};
   for (String cname : cookieNames) {
     Cookie delete = cm.deleteCookie(cname);
     response.addCookie(delete);

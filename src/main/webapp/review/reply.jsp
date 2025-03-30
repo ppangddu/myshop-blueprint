@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="pack.review.ReviewManager" %>
 <%@ page import="pack.review.ReviewDto" %>
 <%@ page import="pack.cookie.CookieManager" %>
@@ -11,20 +10,22 @@
     String num = request.getParameter("num");
     String bpage = request.getParameter("page");
 
+    // 임시 테스트용 세션값 세팅
+    session.setAttribute("user_id", "testuser");
+    session.setAttribute("nickname", "haruka");
+
+
     ReviewManager reviewManager = new ReviewManager();
     ReviewDto dto = reviewManager.getReplyData(num);
 
     CookieManager cm = CookieManager.getInstance();
     Cookie[] cookies = request.getCookies();
-    String ckName = "", ckPass = "", ckMail = "", ckTitle = "", ckCont = "", ckRating = "";
+    String ckTitle = "", ckCont = "", ckRating = "";
 
     if (cookies != null) {
         for (Cookie c : cookies) {
             try {
                 switch (c.getName()) {
-                    case "name": ckName = cm.readCookie(c); break;
-                    case "pass": ckPass = cm.readCookie(c); break;
-                    case "mail": ckMail = cm.readCookie(c); break;
                     case "title": ckTitle = cm.readCookie(c); break;
                     case "cont": ckCont = cm.readCookie(c); break;
                     case "rating": ckRating = cm.readCookie(c); break;
@@ -36,8 +37,6 @@
     request.setAttribute("dto", dto);
     request.setAttribute("num", num);
     request.setAttribute("bpage", bpage);
-
-    System.out.println("쿠키 복원 name = " + ckName);
 %>
 
 <!DOCTYPE html>
@@ -63,24 +62,17 @@
     <script>
         function check() {
             const frm = document.forms["frm"];
-            if (frm.name.value === "") {
-                alert("이름을 입력하세요");
-                frm.name.focus();
-            } else if (frm.pass.value === "") {
-                alert("비밀번호를 입력하세요");
-                frm.pass.focus();
-            } else if (frm.mail.value === "") {
-                alert("이메일을 입력하세요");
-                frm.mail.focus();
-            } else if (frm.title.value === "") {
-                alert("제목을 입력하세요");
-                frm.title.focus();
-            } else if (frm.cont.value === "") {
-                alert(" 내용을 입력하세요");
+            if (frm.cont.value === "") {
+                alert("내용을 입력하세요");
                 frm.cont.focus();
-            } else {
-                frm.submit();
+                return;
             }
+            const ratingField = frm.rating;
+            if (ratingField && ratingField.value === "0") {
+                alert("별점을 입력하세요.");
+                return;
+            }
+                frm.submit();
         }
 
         document.addEventListener("DOMContentLoaded", function () {
@@ -96,11 +88,10 @@
                         s.classList.toggle("selected", i < rating);
                         s.textContent = i < rating ? "★" : "☆";
                     });
-                    // 쿠키로 저장!
                     saveToCookie("rating", rating);
                 });
             });
-            // 쿠키에서 복원된 별점 값 적용
+
             const initialRating = parseInt("<%= ckRating %>");
             if (!isNaN(initialRating) && initialRating > 0) {
                 ratingInput.value = initialRating;
@@ -109,6 +100,22 @@
                     star.textContent = i < initialRating ? "★" : "☆";
                 });
             }
+        });
+
+        function saveToCookie(name, value) {
+            fetch("../review/cookie_save.jsp?name=" + encodeURIComponent(name) + "&value=" + encodeURIComponent(value));
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const fields = ["title", "cont"];
+            fields.forEach(field => {
+                const el = document.forms["frm"][field];
+                if (el) {
+                    el.addEventListener("input", () => {
+                        saveToCookie(field, el.value);
+                    });
+                }
+            });
         });
     </script>
 </head>
@@ -119,18 +126,20 @@
     <input type="hidden" name="gnum" value="${dto.gnum}">
     <input type="hidden" name="onum" value="${dto.onum}">
     <input type="hidden" name="nested" value="${dto.nested}">
+    <input type="hidden" name="user_id" value="${sessionScope.user_id}">
+
     <table border="1">
         <tr><td colspan="2"><h2>*** 댓글 쓰기 ***</h2></td></tr>
-        <tr><td align="center" width="100">이 름</td>
-            <td width="430"><input name="name" size="15" value="<%= ckName %>"></td></tr>
-        <tr><td align="center">암 호</td>
-            <td><input type="password" name="pass" size="15" value="<%= ckPass %>"></td></tr>
-        <tr><td align="center">메 일</td>
-            <td><input name="mail" style="width:100%" value="<%= ckMail %>"></td></tr>
-        <tr><td align="center">제 목</td>
-            <td><input name="title" style="width:100%" value="<%= ckTitle %>"></td></tr>
-        <tr><td align="center">내 용</td>
-            <td><textarea name="cont" rows="10" style="width:100%"><%= ckCont %></textarea></td></tr>
+
+        <tr>
+            <td align="center">작성자</td>
+            <td>${sessionScope.nickname}</td>
+        </tr>
+
+        <tr>
+            <td align="center">내 용</td>
+            <td><textarea name="cont" rows="10" style="width:100%"><%= ckCont %></textarea></td>
+        </tr>
 
         <c:if test="${dto.nested == 0}">
             <tr>
@@ -149,29 +158,10 @@
         <tr>
             <td colspan="2" align="center" height="30">
                 <input type="button" value="작  성" onClick="check()">&nbsp;
-                <input type="button" value="목  록"
-                       onClick="location.href='reviewlist.jsp?page=${bpage}'">
+                <input type="button" value="목  록" onClick="location.href='reviewlist.jsp?page=${bpage}'">
             </td>
         </tr>
     </table>
 </form>
-<script>
-    function saveToCookie(name, value) {
-        fetch("../review/cookie_save.jsp?name=" + encodeURIComponent(name) + "&value=" + encodeURIComponent(value));
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const fields = ["name", "pass", "mail", "title", "cont"];
-        fields.forEach(field => {
-            const el = document.forms["frm"][field];
-            if (el) {
-                el.addEventListener("input", () => {
-                    saveToCookie(field, el.value);
-                });
-            }
-        });
-    });
-</script>
-
 </body>
 </html>

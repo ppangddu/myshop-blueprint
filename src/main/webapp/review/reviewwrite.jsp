@@ -11,7 +11,7 @@
       if(frm.title.value.trim() ==""){
         alert("제목을 입력하세요");
         frm.title.focus();
-      }else if(frm.name.value.trim() =="") {
+      }else if(frm.directorName.value.trim() =="") {
         alert("감독을 입력하세요");
       } else if(frm.releaseDate.value.trim() =="") {
         alert("개봉일을 입력하세요");
@@ -42,7 +42,7 @@
     </tr>
     <tr>
       <td align="center">감독</td>
-      <td><input name="name" size="50"></td>
+      <td><input name="directorName" size="50"></td>
     </tr>
     <tr>
       <td align="center">개봉일</td>
