@@ -1,6 +1,7 @@
 <%@ page import="pack.review.ReviewDto" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="pack.review.ReviewManager" %>
+<%@ page import="pack.movie.MovieDto" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -13,20 +14,30 @@
 %>
 
 <%
-  String num = request.getParameter("num");
+//  String num = request.getParameter("num");
+//  String bpage = request.getParameter("page");
+//
+//  ReviewManager reviewManager = new ReviewManager();
+//  reviewManager.updateReadcnt(num);
+//  ReviewDto dto = reviewManager.getData(num);
+//
+//  request.setAttribute("dto", dto);
+//  request.setAttribute("bpage", bpage);
+//  request.setAttribute("comments", reviewManager.getComments(dto.getNum()));
+//  request.setAttribute("avgRating", reviewManager.getAverageRating(dto.getNum()));
+  int movieId = Integer.parseInt(request.getParameter("movieId"));
   String bpage = request.getParameter("page");
 
   ReviewManager reviewManager = new ReviewManager();
-  reviewManager.updateReadcnt(num);
-  ReviewDto dto = reviewManager.getData(num);
 
-  request.setAttribute("dto", dto);
+  MovieDto movie = reviewManager.getMovieById(movieId);
+  ArrayList<ReviewDto> comments = reviewManager.getCommentsByMovieId(movieId);
+  double avgRating = reviewManager.getAverageRating(movieId);
+
+  request.setAttribute("movie", movie);
+  request.setAttribute("comments", comments);
+  request.setAttribute("avgRating", avgRating);
   request.setAttribute("bpage", bpage);
-  request.setAttribute("comments", reviewManager.getComments(dto.getNum()));
-  request.setAttribute("avgRating", reviewManager.getAverageRating(dto.getNum()));
-
-  String adminOk = (String) session.getAttribute("adminOk");
-  request.setAttribute("isAdmin", "admin".equals(adminOk));
 %>
 
 <!DOCTYPE html>
@@ -40,31 +51,28 @@
 <table>
   <tr>
     <td colspan="2" style="text-align: right">
-      <a href="reply.jsp?num=${dto.num}&page=${bpage}">
+        <a href="reply.jsp?movieId=${movie.id}&page=${bpage}">
         <img src="../images/reply.gif">
       </a>
 
-      <a href="edit.jsp?num=${dto.num}&page=${bpage}">
+      <a href="edit.jsp?movieId=${movie.id}&page=${bpage}">
         <img src="../images/edit.gif">
       </a>
 
-      <c:if test="${isAdmin}">
-        <a href="delete.jsp?num=${dto.num}&page=${bpage}">
+      <a href="delete.jsp?num=${movie.id}&page=${bpage}">
           <img src="../images/del.gif">
         </a>
-      </c:if>
 
-      <a href="reviewlist.jsp?num=${dto.num}&page=${bpage}">
+      <a href="movielist.jsp?num=${movie.id}&page=${bpage}">
         <img src="../images/list.gif">
       </a>
     </td>
   </tr>
   <tr style="height: 30">
-    <td>개봉일: ${dto.releaseDate}</td>
-    <td>조회수: ${dto.readcnt}</td>
+    <td>개봉일: ${movie.releaseDate}</td>
   </tr>
   <tr>
-    <td colspan="3" style="background-color: cyan">제목 : ${dto.title}</td>
+    <td colspan="3" style="background-color: cyan">제목 : ${movie.title}</td>
   </tr>
   <tr>
     <td colspan="3" style="text-align: left; padding-left: 10px;">
@@ -77,14 +85,14 @@
   </tr>
   <tr>
     <td colspan="3" style="text-align:center;">
-      <img src="${dto.imageUrl}" alt="영화 포스터를 넣어주세요."
+      <img src="${movie.imageUrl}" alt="영화 포스터를 넣어주세요."
            style="max-width: 400px; height: auto; border-radius: 10px; margin: 10px 0;">
 
     </td>
   </tr>
   <tr>
     <td colspan="3">
-      <textarea rows="10" style="width: 99%" readonly="readonly">${dto.cont}</textarea>
+      <textarea rows="10" style="width: 99%" readonly="readonly">${movie.description}</textarea>
     </td>
   </tr>
   <tr>
@@ -115,7 +123,7 @@
             </div>
 
             <div style="font-size: 0.9em; color: gray; margin-top: 3px;">
-              (${comment.bdate}) &nbsp;
+              (${comment.cdate}) &nbsp;
               <button class="likeBtn" data-num="${comment.num}">
                 좋아요 (<span id="like-${comment.num}">${comment.likeCount}</span>)
               </button>

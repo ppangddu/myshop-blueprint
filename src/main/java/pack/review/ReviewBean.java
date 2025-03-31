@@ -9,12 +9,6 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 public class ReviewBean {
-    private int num, readcnt, gnum, onum, nested, rating, likeCount;
-    private String userId, title, cont, bip, bdate, imageUrl, releaseDate, directorName, nickname;
-
-    public void setBdate() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        this.bdate = now.format(formatter);
-    }
+    private int num, movieId, gnum, onum, nested, rating, likeCount;
+    private String userId, cdate, cont, nickname;
 }

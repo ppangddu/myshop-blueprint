@@ -16,15 +16,15 @@
   int gnum = Integer.parseInt(request.getParameter("gnum"));
   int onum = Integer.parseInt(request.getParameter("onum")) + 1;
   int nested = Integer.parseInt(request.getParameter("nested")) + 1;
+  int movieId = Integer.parseInt(request.getParameter("movieId"));
 
   reviewManager.updateOnum(gnum, onum); // 같은 그룹에서 onum 밀기
 
   // 새 댓글 설정
+  bean.setMovieId(movieId);
   bean.setGnum(gnum);
   bean.setOnum(onum);
   bean.setNested(nested);
-  bean.setBip(request.getRemoteAddr());
-  bean.setBdate();
   bean.setNum(reviewManager.currentMaxNum() + 1);
 
   String cont = request.getParameter("cont");
@@ -77,5 +77,5 @@
   }
 
   // 원글로 리다이렉트
-  response.sendRedirect("reviewcontent.jsp?num=" + bean.getGnum() + "&page=" + bpage);
+  response.sendRedirect("reviewcontent.jsp?movieId=" + movieId + "&page=" + bpage);
 %>

@@ -7,36 +7,79 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
-    String num = request.getParameter("num");
+//    int num = Integer.parseInt(request.getParameter("num"));
+//    String bpage = request.getParameter("page");
+//
+//    // 임시 테스트용 세션값 세팅
+//    session.setAttribute("user_id", "testuser");
+//    session.setAttribute("nickname", "haruka");
+//
+//
+//    ReviewManager reviewManager = new ReviewManager();
+//    ReviewDto dto = reviewManager.getReplyData(num);
+//
+//    CookieManager cm = CookieManager.getInstance();
+//    Cookie[] cookies = request.getCookies();
+//    String ckTitle = "", ckCont = "", ckRating = "";
+//
+//    if (cookies != null) {
+//        for (Cookie c : cookies) {
+//            try {
+//                switch (c.getName()) {
+//                    case "title": ckTitle = cm.readCookie(c); break;
+//                    case "cont": ckCont = cm.readCookie(c); break;
+//                    case "rating": ckRating = cm.readCookie(c); break;
+//                }
+//            } catch (Exception e) {}
+//        }
+//    }
+//
+//    request.setAttribute("dto", dto);
+//    request.setAttribute("num", num);
+//    request.setAttribute("bpage", bpage);
+    String numStr = request.getParameter("num");
+    String movieIdStr = request.getParameter("movieId");
     String bpage = request.getParameter("page");
+
+    ReviewDto dto = null;
+    ReviewManager reviewManager = new ReviewManager();
+
+    if (numStr != null) { // 답글 (댓글의 댓글)
+        int num = Integer.parseInt(numStr);
+        dto = reviewManager.getReplyData(num);
+    } else if (movieIdStr != null) { // 최초 댓글 (영화에 대한 첫 댓글)
+        int movieId = Integer.parseInt(movieIdStr);
+        dto = new ReviewDto();
+        dto.setMovieId(movieId);
+        dto.setNested(0); // 최초 댓글이니까 nested는 0
+        dto.setGnum(0);
+        dto.setOnum(0);
+    } else { // 둘다 없으면 에러니까 목록으로 보냄
+        response.sendRedirect("reviewlist.jsp");
+        return;
+    }
+
+    request.setAttribute("dto", dto);
+    request.setAttribute("bpage", bpage);
 
     // 임시 테스트용 세션값 세팅
     session.setAttribute("user_id", "testuser");
     session.setAttribute("nickname", "haruka");
 
-
-    ReviewManager reviewManager = new ReviewManager();
-    ReviewDto dto = reviewManager.getReplyData(num);
-
     CookieManager cm = CookieManager.getInstance();
     Cookie[] cookies = request.getCookies();
-    String ckTitle = "", ckCont = "", ckRating = "";
+    String ckCont = "", ckRating = "";
 
     if (cookies != null) {
         for (Cookie c : cookies) {
             try {
                 switch (c.getName()) {
-                    case "title": ckTitle = cm.readCookie(c); break;
                     case "cont": ckCont = cm.readCookie(c); break;
                     case "rating": ckRating = cm.readCookie(c); break;
                 }
             } catch (Exception e) {}
         }
     }
-
-    request.setAttribute("dto", dto);
-    request.setAttribute("num", num);
-    request.setAttribute("bpage", bpage);
 %>
 
 <!DOCTYPE html>
@@ -127,6 +170,8 @@
     <input type="hidden" name="onum" value="${dto.onum}">
     <input type="hidden" name="nested" value="${dto.nested}">
     <input type="hidden" name="user_id" value="${sessionScope.user_id}">
+    <input type="hidden" name="movieId" value="${dto.movieId}">
+
 
     <table border="1">
         <tr><td colspan="2"><h2>*** 댓글 쓰기 ***</h2></td></tr>
@@ -158,7 +203,7 @@
         <tr>
             <td colspan="2" align="center" height="30">
                 <input type="button" value="작  성" onClick="check()">&nbsp;
-                <input type="button" value="목  록" onClick="location.href='reviewlist.jsp?page=${bpage}'">
+                <input type="button" value="작성 취소" onClick="history.back()">
             </td>
         </tr>
     </table>
