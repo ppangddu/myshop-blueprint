@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class MovieManager {
         private Connection conn;
@@ -16,7 +17,7 @@ public class MovieManager {
         private DataSource ds;
 
         private int recTot;
-        private int pageList = 10;
+        private int pageList = 5;
         private int pageTot;
 
         public MovieManager() {
@@ -51,7 +52,7 @@ public class MovieManager {
             }
         }
 
-        public ArrayList<MovieDto> getDataAll(int page, String searchType, String searchWord) {
+        public ArrayList<MovieDto> getDataAll(int page, String searchWord) {
             ArrayList<MovieDto> list = new ArrayList<>();
             String sql = "SELECT * FROM movie";
 
@@ -62,7 +63,7 @@ public class MovieManager {
                     sql += " ORDER BY id DESC";
                     pstmt = conn.prepareStatement(sql);
                 } else {
-                    sql += " WHERE " + searchType + " LIKE ? ORDER BY id DESC";
+                    sql += " WHERE title LIKE ? ORDER BY id DESC";
                     pstmt = conn.prepareStatement(sql);
                     pstmt.setString(1, "%" + searchWord + "%");
                 }
@@ -113,4 +114,77 @@ public class MovieManager {
                 System.out.println("saveMovie err : " + e);
             }
     }
+    public MovieDto getMovie(int id) {
+        MovieDto dto = null;
+        String sql = "SELECT * FROM movie WHERE id=?";
+        try (Connection conn = ds.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                dto = new MovieDto();
+                dto.setId(rs.getInt("id"));
+                dto.setTitle(rs.getString("title"));
+                dto.setGenre(rs.getString("genre"));
+                dto.setActorName(rs.getString("actor_name"));
+                dto.setDescription(rs.getString("description"));
+                dto.setImageUrl(rs.getString("image_url"));
+                dto.setReleaseDate(rs.getString("release_date"));
+            }
+            rs.close();
+        } catch (Exception e) {
+            System.out.println("getMovie err : " + e);
+        }
+        return dto;
+    }
+    public void saveEdit(MovieDto movie) {
+        String sql = "UPDATE movie SET title=?, genre=?, actor_name=?, description=?, image_url=? WHERE id=?";
+        try (Connection conn = ds.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, movie.getTitle());
+            pstmt.setString(2, movie.getGenre());
+            pstmt.setString(3, movie.getActorName());
+            pstmt.setString(4, movie.getDescription());
+            pstmt.setString(5, movie.getImageUrl());
+            pstmt.setInt(6, movie.getId());
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("saveEdit err : " + e);
+        }
+    }
+
+    public void deleteMovie(int id) {
+        try (Connection conn = ds.getConnection()) {
+            // 1. 먼저 해당 영화에 연결된 리뷰들 삭제
+            String deleteReviews = "DELETE FROM review WHERE movie_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteReviews)) {
+                pstmt.setInt(1, id);
+                pstmt.executeUpdate();
+            }
+            // 2. 그런 다음 영화 삭제
+            String deleteMovie = "DELETE FROM movie WHERE id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteMovie)) {
+                pstmt.setInt(1, id);
+                pstmt.executeUpdate();
+            }
+        } catch (Exception e) {
+            System.out.println("deleteMovie err : " + e);
+        }
+    }
+    public int getSearchCount(String searchWord) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM movie WHERE title LIKE ?";
+        try (Connection conn = ds.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "%" + searchWord + "%");
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println("getSearchCount err : " + e);
+        }
+        return count;
+    }
+
 }

@@ -1,23 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <% request.setCharacterEncoding("utf-8"); %>
-<%@page import="pack.review.ReviewManager" %>
-<%@page import="pack.review.ReviewBean" %>
+<%@page import="pack.movie.MovieManager" %>
+<%@page import="pack.movie.MovieDto" %>
 
 <%
     String bpage = request.getParameter("page");
+    int id = Integer.parseInt(request.getParameter("id"));
 
-    // Bean 객체 생성 및 값 세팅
-    ReviewBean bean = new ReviewBean();
-    bean.setNum(Integer.parseInt(request.getParameter("num")));
-    bean.setTitle(request.getParameter("title"));
-    bean.setDirectorName(request.getParameter("directorName"));
-    bean.setCont(request.getParameter("cont"));
-    bean.setImageUrl(request.getParameter("imageUrl"));
+    MovieDto movie = new MovieDto();
+    movie.setId(id);
+    movie.setTitle(request.getParameter("title"));
+    movie.setActorName(request.getParameter("actorName")); // actorName이 맞으면 유지, directorName이면 필드명 확인 필요
+    movie.setDescription(request.getParameter("description"));
+    movie.setImageUrl(request.getParameter("imageUrl"));
+    movie.setGenre(request.getParameter("genre")); // 이게 추가돼야 완벽함.
 
-    ReviewManager reviewManager = new ReviewManager();
+    MovieManager movieManager = new MovieManager();
+    movieManager.saveEdit(movie);
 
-    reviewManager.saveEdit(bean);
-    response.sendRedirect("reviewlist.jsp?page=" + bpage); // 자료 수정 후 목록보기
-
+    response.sendRedirect("movielist.jsp?page=" + bpage); // 수정 후 목록보기는 movielist로 가야 정확함!
 %>

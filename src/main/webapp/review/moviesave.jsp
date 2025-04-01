@@ -8,9 +8,8 @@
     MovieBean bean = new MovieBean();
     MovieManager movieManager = new MovieManager();
 
-    // 자동으로 채워지는 거 생성
     bean.setTitle(request.getParameter("title"));
-    bean.setGenre(request.getParameter("genre"));  // 장르 추가했다면 포함
+    bean.setGenre(request.getParameter("genre"));
     bean.setActorName(request.getParameter("actorName"));
     bean.setDescription(request.getParameter("description"));
     bean.setReleaseDate(request.getParameter("releaseDate"));
