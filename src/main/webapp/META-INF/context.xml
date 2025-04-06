@@ -10,7 +10,7 @@ username="root" password="1234" testOnBorrow="true"
 
 maxActive="500" maxIdle="100"
 
-url="jdbc:mariadb://localhost:3306/test" />
+url="jdbc:mariadb://localhost:3306/cinemap" />
 
  
 

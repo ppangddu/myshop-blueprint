@@ -13,7 +13,6 @@
         alert("자료를 입력하세요.");
         return;
       } frm.submit();
-
     }
   </script>
 </head>
@@ -23,7 +22,7 @@
     <tr>
       <td>
         <c:choose>
-          <c:when test="${not empty sessionScope.adminOk}">
+          <c:when test="${not empty sessionScope.admin}">
             이미 로그인된 상태입니다.
             <a href="adminlogin.jsp">로그아웃</a>
             <a href="javascript:window.close()">창 닫기</a>

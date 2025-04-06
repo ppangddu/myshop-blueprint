@@ -3,12 +3,12 @@ package pack.review;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 @Getter
 @Setter
 public class ReviewBean {
-    private int num, movieId, gnum, onum, nested, rating, likeCount;
-    private String userId, cdate, cont, nickname;
+    private int num, movieId, onum, nested, rating, likeCount;
+    private String userId, cont, nickname;
+    private Date cdate;
 }

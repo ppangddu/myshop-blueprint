@@ -21,7 +21,7 @@
         alert("내용을 입력하세요");
         frm.cont.focus();
       }else if(frm.imageUrl.value.trim() ==""){
-        alert("내용을 입력하세요");
+        alert("이미지url을 입력하세요");
         frm.cont.focus();
       } else
         frm.submit();

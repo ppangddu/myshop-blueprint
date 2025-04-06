@@ -97,7 +97,7 @@
     <tr>
       <td colspan="2" style="text-align: center; height: 50">
         <input type="button" value="수정완료" onclick="check()">&nbsp;
-        <input type="button" value="목록보기" onclick="location.href='reviewlist.jsp?page=${bpage}'">&nbsp;
+        <input type="button" value="목록보기" onclick="location.href='movielist.jsp?page=${bpage}'">&nbsp;
       </td>
     </tr>
   </table>

@@ -11,7 +11,7 @@
     // 자바 코드로 해야 한다.
 
     if ("admin".equals(id) && "123".equals(pwd)) {
-        session.setAttribute("adminOk", id); // 세션 저장
+        session.setAttribute("admin", id); // 세션 저장
         loginSuccess = true;
     }
     request.setAttribute("loginSuccess", loginSuccess);

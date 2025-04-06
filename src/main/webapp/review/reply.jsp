@@ -13,19 +13,27 @@
     String movieIdStr = request.getParameter("movieId");
     String bpage = request.getParameter("page");
 
-    ReviewDto review = null;
+    boolean isReplyToComment = (numStr != null);
+    String contCookieName = isReplyToComment ? "cont_reply" : "cont_review";
+    String ratingCookieName = isReplyToComment ? "rating_reply" : "rating_review";
+
+    ReviewDto review = new ReviewDto();
     ReviewManager reviewManager = new ReviewManager();
 
-    if (numStr != null) {
-        int num = Integer.parseInt(numStr);
-        review = reviewManager.getReplyData(num);
+    if (isReplyToComment) {
+        int parentNum = Integer.parseInt(numStr);
+        ReviewDto parent = reviewManager.getReplyData(parentNum);
+
+        review.setMovieId(parent.getMovieId());
+        review.setOnum(parent.getOnum()); // 원댓글 그룹 유지
+
+        int newNested = parent.getNested() >= 2 ? 2 : parent.getNested() + 1;
+        review.setNested(newNested);
     } else if (movieIdStr != null) {
         int movieId = Integer.parseInt(movieIdStr);
-        review = new ReviewDto();
         review.setMovieId(movieId);
-        review.setNested(0);
-        review.setGnum(0);
-        review.setOnum(0);
+        review.setOnum(0); // 저장 후 onum 갱신
+        review.setNested(1); // 원댓글
     } else {
         response.sendRedirect("movielist.jsp");
         return;
@@ -34,8 +42,10 @@
     request.setAttribute("review", review);
     request.setAttribute("bpage", bpage);
 
-    session.setAttribute("user_id", "testuser");
-    session.setAttribute("nickname", "haruka");
+    if (session.getAttribute("user_id") == null) {
+        session.setAttribute("user_id", "testuser");
+        session.setAttribute("nickname", "빠른강아지59");
+    }
 
     CookieManager cm = CookieManager.getInstance();
     Cookie[] cookies = request.getCookies();
@@ -44,11 +54,13 @@
     if (cookies != null) {
         for (Cookie c : cookies) {
             try {
-                switch (c.getName()) {
-                    case "cont": ckCont = cm.readCookie(c); break;
-                    case "rating": ckRating = cm.readCookie(c); break;
+                if (c.getName().equals(contCookieName)) {
+                    ckCont = cm.readDecryptCookie(c);  // 🔐 복호화로 변경
                 }
-            } catch (Exception e) {}
+                if (c.getName().equals(ratingCookieName)) {
+                    ckRating = cm.readDecryptCookie(c);  // 🔐 복호화로 변경
+                }
+            } catch (Exception ignored) {}
         }
     }
 %>
@@ -67,7 +79,7 @@
     <script>
         function check() {
             const frm = document.forms["frm"];
-            if (frm.cont.value === "") {
+            if (frm.cont.value.trim() === "") {
                 alert("내용을 입력하세요");
                 frm.cont.focus();
                 return;
@@ -80,7 +92,9 @@
         }
 
         function saveToCookie(name, value) {
-            fetch("../review/cookie_save.jsp?name=" + encodeURIComponent(name) + "&value=" + encodeURIComponent(value));
+            const isReply = <%= isReplyToComment %>;
+            const cookieName = name + (isReply ? "_reply" : "_review");
+            fetch("../review/cookie_save.jsp?name=" + encodeURIComponent(cookieName) + "&value=" + encodeURIComponent(value));
         }
 
         document.addEventListener("DOMContentLoaded", function () {
@@ -91,7 +105,6 @@
                 star.addEventListener("click", () => {
                     const rating = idx + 1;
                     ratingInput.value = rating;
-
                     stars.forEach((s, i) => {
                         s.classList.toggle("selected", i < rating);
                         s.textContent = i < rating ? "★" : "☆";
@@ -109,14 +122,10 @@
                 });
             }
 
-            ["cont"].forEach(field => {
-                const el = document.forms["frm"][field];
-                if (el) {
-                    el.addEventListener("input", () => {
-                        saveToCookie(field, el.value);
-                    });
-                }
-            });
+            const contEl = document.forms["frm"]["cont"];
+            if (contEl) {
+                contEl.addEventListener("input", () => saveToCookie("cont", contEl.value));
+            }
         });
     </script>
 </head>
@@ -126,7 +135,6 @@
         <input type="hidden" name="num" value="${param.num}">
     </c:if>
     <input type="hidden" name="page" value="${bpage}">
-    <input type="hidden" name="gnum" value="${review.gnum}">
     <input type="hidden" name="onum" value="${review.onum}">
     <input type="hidden" name="nested" value="${review.nested}">
     <input type="hidden" name="user_id" value="${sessionScope.user_id}">
@@ -143,7 +151,7 @@
             <td><textarea name="cont" rows="10" style="width:100%"><%= ckCont %></textarea></td>
         </tr>
 
-        <c:if test="${review.nested == 0}">
+        <c:if test="${review.nested == 1}">
             <tr>
                 <td align="center">별점</td>
                 <td>

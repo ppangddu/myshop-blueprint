@@ -12,9 +12,10 @@
     movie.setId(id);
     movie.setTitle(request.getParameter("title"));
     movie.setActorName(request.getParameter("actorName")); // actorName이 맞으면 유지, directorName이면 필드명 확인 필요
+    movie.setReleaseDate(request.getParameter("releaseDate"));
     movie.setDescription(request.getParameter("description"));
     movie.setImageUrl(request.getParameter("imageUrl"));
-    movie.setGenre(request.getParameter("genre")); // 이게 추가돼야 완벽함.
+    movie.setGenre(request.getParameter("genre"));
 
     MovieManager movieManager = new MovieManager();
     movieManager.saveEdit(movie);

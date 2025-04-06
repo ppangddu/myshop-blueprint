@@ -18,11 +18,16 @@
   ReviewManager reviewManager = new ReviewManager();
 
   MovieDto movie = reviewManager.getMovieById(movieId);
-  ArrayList<ReviewDto> comments = reviewManager.getCommentsByMovieId(movieId);
+  ArrayList<ReviewDto> reviews = reviewManager.getReviewsByMovieId(movieId);
   double avgRating = reviewManager.getAverageRating(movieId);
 
+  if (session.getAttribute("user_id") == null) {
+    session.setAttribute("user_id", "testuser");
+    session.setAttribute("nickname", "haruka");
+  }
+
   request.setAttribute("movie", movie);
-  request.setAttribute("comments", comments);
+  request.setAttribute("reviews", reviews);
   request.setAttribute("avgRating", avgRating);
   request.setAttribute("bpage", bpage);
 %>
@@ -137,29 +142,46 @@
     }
 
     .likeBtn {
-      padding: 3px 10px;
-      font-size: 0.9em;
-      background: #e0e0e0;
-      border: none;
-      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      font-size: 1em;
+      background-color: #fff0f0;
+      color: #d6336c;
+      border: 1px solid #f5c2c7;
+      border-radius: 20px;
       cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
     }
 
     .likeBtn:hover {
-      background: #ccc;
+      background-color: #ffe3e3;
+      transform: scale(1.05);
     }
+
+    .likeBtn:active {
+      transform: scale(0.95);
+    }
+
+
   </style>
 </head>
 <body>
 <div class="movie-detail-container">
   <div class="movie-header">
-    <a href="reply.jsp?movieId=${movie.id}&page=${bpage}">리뷰 쓰기</a>
-    <a href="edit.jsp?id=${movie.id}&page=${bpage}">수정하기</a>
+    <a href="reply.jsp?movieId=${movie.id}&page=${bpage}"
+       class="login-check" data-url="reply.jsp?movieId=${movie.id}&page=${bpage}">
+      리뷰 쓰기
+    </a>
+<c:if test="${not empty sessionScope.admin}">
+<a href="edit.jsp?id=${movie.id}&page=${bpage}">수정하기</a>
     <a href="delete.jsp?id=${movie.id}&page=${bpage}">삭제하기</a>
+</c:if>
     <a href="movielist.jsp?page=${bpage}">목록 보기</a>
   </div>
 
-  <div class="movie-title">제목 : ${movie.title}</div>
+  <div class="movie-title">${movie.title}</div>
 
   <div class="movie-info-wrapper">
     <div class="movie-info">
@@ -183,56 +205,99 @@
 
   <div class="comment-box">
     <h3>댓글 목록</h3>
-    <c:forEach var="comment" items="${comments}">
-      <c:set var="indent" value="${comment.nested * 20}" />
+    <c:forEach var="review" items="${reviews}">
+      <c:set var="indent" value="${review.nested * 20}" />
       <div class="comment" style="margin-left:${indent}px;">
-        <c:if test="${comment.nested == 1 && comment.rating > 0}">
+        <c:if test="${review.nested == 1 && review.rating > 0}">
           <div class="stars">
             <c:forEach var="i" begin="1" end="5">
               <c:choose>
-                <c:when test="${i <= comment.rating}">★</c:when>
+                <c:when test="${i <= review.rating}">★</c:when>
                 <c:otherwise>☆</c:otherwise>
               </c:choose>
             </c:forEach>
           </div>
         </c:if>
 
-        <div><b>${comment.nickname}</b> : ${comment.cont}</div>
+        <div><b>${review.nickname}</b> : ${review.cont}</div>
         <div class="meta">
-          (${comment.cdate})
-          <button class="likeBtn" data-num="${comment.num}">
-            좋아요 (<span id="like-${comment.num}">${comment.likeCount}</span>)
+          (<fmt:formatDate value="${review.cdate}" pattern="yyyy-MM-dd HH:mm" />)
+          <button class="likeBtn" data-num="${review.num}">
+            ❤️ <span id="like-${review.num}">${review.likeCount}</span>
           </button>
-          <a href="reply.jsp?num=${comment.num}&page=${bpage}">답글</a>
+          <c:if test="${review.nested == 1}">
+            <a href="reply.jsp?num=${review.num}&page=${bpage}"
+               class="login-check"
+               data-url="reply.jsp?num=${review.num}&page=${bpage}">
+              답글
+            </a>
+          </c:if>
+          <c:if test="${sessionScope.user_id == review.userId}">
+            <a href="reviewdelete.jsp?num=${review.num}&movieId=${movie.id}&page=${bpage}">삭제</a>
+          </c:if>
         </div>
       </div>
     </c:forEach>
   </div>
 </div>
 
+
 <script>
-  const contextPath = "<%=request.getContextPath()%>";
+  const contextPath = "<%= request.getContextPath() %>";
+  const isLoggedIn = <%= session.getAttribute("user_id") != null %>;
 
-  document.addEventListener("DOMContentLoaded", function() {
-    const likeButtons = document.querySelectorAll(".likeBtn");
-
-    likeButtons.forEach(button => {
-      button.addEventListener("click", function() {
+  document.addEventListener("DOMContentLoaded", function () {
+    // 좋아요 토글
+    document.querySelectorAll(".likeBtn").forEach(button => {
+      button.addEventListener("click", function () {
         const num = this.getAttribute("data-num");
         const url = contextPath + "/review/ajax/like.jsp?num=" + num;
+        const countSpan = document.getElementById("like-" + num);
+        const btn = this;
 
         fetch(url)
                 .then(response => response.text())
                 .then(result => {
-                  const countSpan = document.getElementById("like-" + num);
-                  const newCount = parseInt(result.trim());
-                  if (!isNaN(newCount)) {
-                    countSpan.textContent = newCount;
+                  const trimmed = result.trim();
+
+                  if (trimmed === "unauthorized") {
+                    alert("로그인 후 이용 가능합니다.");
+                    return;
+                  }
+
+                  if (trimmed.startsWith("liked:")) {
+                    const count = trimmed.split(":")[1];
+                    countSpan.textContent = count;
+                    btn.classList.add("liked");
+                    btn.title = "좋아요 취소";
+                    return;
+                  }
+
+                  if (trimmed.startsWith("unliked:")) {
+                    const count = trimmed.split(":")[1];
+                    countSpan.textContent = count;
+                    btn.classList.remove("liked");
+                    btn.title = "좋아요";
+                    return;
                   }
                 });
       });
     });
+
+    // 리뷰쓰기/답글 링크 클릭 시 로그인 확인
+    document.querySelectorAll(".login-check").forEach(link => {
+      link.addEventListener("click", function (e) {
+        if (!isLoggedIn) {
+          e.preventDefault();
+          alert("로그인 후 이용 가능합니다.");
+        } else {
+          location.href = this.getAttribute("data-url");
+        }
+      });
+    });
   });
 </script>
+
+
 </body>
 </html>

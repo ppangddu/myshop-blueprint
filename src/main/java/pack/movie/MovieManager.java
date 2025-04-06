@@ -1,6 +1,5 @@
 package pack.movie;
 
-import pack.review.ReviewBean;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -8,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public class MovieManager {
         private Connection conn;
@@ -138,7 +136,7 @@ public class MovieManager {
         return dto;
     }
     public void saveEdit(MovieDto movie) {
-        String sql = "UPDATE movie SET title=?, genre=?, actor_name=?, description=?, image_url=? WHERE id=?";
+        String sql = "UPDATE movie SET title=?, genre=?, actor_name=?, description=?, image_url=?, release_date=? WHERE id=?";
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, movie.getTitle());
@@ -146,7 +144,8 @@ public class MovieManager {
             pstmt.setString(3, movie.getActorName());
             pstmt.setString(4, movie.getDescription());
             pstmt.setString(5, movie.getImageUrl());
-            pstmt.setInt(6, movie.getId());
+            pstmt.setString(6, movie.getReleaseDate());
+            pstmt.setInt(7, movie.getId());
             pstmt.executeUpdate();
         } catch (Exception e) {
             System.out.println("saveEdit err : " + e);
